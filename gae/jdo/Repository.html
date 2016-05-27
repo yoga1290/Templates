@@ -1,0 +1,38 @@
+<textarea width="100%" class="form-control" rows="46">
+import java.util.Collection;
+import java.util.List;
+import javax.jdo.Query;
+import org.springframework.stereotype.Service;
+
+@Service
+public class {{Capitalise(obj.name)}}Repository extends JDOCrudRepository<{{Capitalise(obj.name)}}, {{$('.Repository.PKType')}}>{
+
+	public {{Capitalise(obj.name)}}Repository() {
+		super({{Capitalise(obj.name)}}.class);
+	}
+        {{$('.Repository.finders')}}
+}
+
+</textarea>
+
+<div ng-repeat="field in obj.fields" ng-hide="true" class="Repository finders">
+@SuppressWarnings("unchecked")
+public Collection{{sce('<'+Capitalise(obj.name)+'>')}} findBy{{Capitalise(field.name)}}({{field.type}} {{field.name}}){
+    Query query = PMF.get().getPersistenceManager().newQuery({{Capitalise(obj.name)}}.class);
+    query.setFilter("{{field.name}} == n");
+    query.declareParameters("{{field.type}} n");
+    return (List{{sce('<'+Capitalise(obj.name)+'>')}})query.execute({{field.name}});
+}
+</div>
+<div ng-repeat="field in obj.fields" ng-hide="true" class="Repository finders" ng-if="field.type=='Long'">
+@SuppressWarnings("unchecked")
+public Collection{{sce('<'+Capitalise(obj.name)+'>')}} findByTop{{Capitalise(field.name)}}(int offset,int limit){
+    Query query = PMF.get().getPersistenceManager().newQuery({{Capitalise(obj.name)}}.class);
+	query.setOrdering("{{field.name}} desc");
+	query.setRange(offset, offset+limit);
+    return (List{{sce('<'+Capitalise(obj.name)+'>')}})query.execute();
+}
+</div>
+
+
+<div ng-repeat="field in obj.fields" ng-hide="true" class="Repository PKType" ng-if="field.isPK">{{field.type}}</div>

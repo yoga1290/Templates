@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<script src="../../js/jade.js"></script>
+<script type="text/template" id="jade">
+html
+	head
+		meta(charset="utf-8")
+		meta(http-equiv="X-UA-Compatible", content="IE=edge")
+		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1")
+		title Google AppEngine JDO Template
+		script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
+		script(src="../../js/bootstrap.min.js")
+		script(src="../../js/angular.js")
+		script(src="../../js/Base64.js")
+		link(rel="stylesheet", href="../../css/bootstrap.min.css")
+		link(rel="stylesheet", href="../../css/bootstrap-theme.min.css")
+		link(rel="stylesheet",href="https://fonts.googleapis.com/icon?family=Material+Icons")
+	body
+		h1 JDO Template
+		p
+			| Press enter/return for a new field
+
+		.container-fluid(ng-app="app",ng-controller="objCtrl")
+				.row(ng-repeat="obj in objects track by $index")
+					.col-md-3
+						.panel.panel-default
+							.panel-heading
+								.row
+									input.form-control(type="text",ng-model="obj.name",placeholder="Object Class name")
+							.panel-body
+								.input-group.col-xs-12(ng-repeat="field in obj.fields track by $index")
+									input.field.form-control(type="text",placeholder="Field name",ng-model="field.name",ng-keypress="keypress($event,obj)")
+									.input-group-btn
+										button.btn.btn-default.dropdown-toggle(data-toggle="dropdown") {{field.type}}
+											span.caret
+										ul.dropdown-menu
+											li
+												a(href="#",ng-click="field.type='Long';") Long
+											li
+												a(href="#",ng-click="field.type='String';") String
+											li
+												a(href="#",ng-click="field.type='datetime';") datetime
+											li
+												a(href="#",ng-click="field.type='TINYINT(1)';") TINYINT(1)
+											li
+												input(type="checkbox",ng-model="field.isPK")
+												| PK
+											li
+												input(type="checkbox",ng-model="field.isDDL")
+												| DataTable DDL?
+											li
+												input(type="checkbox",ng-model="field.isFixed")
+												| Fixed value in InsertAll?
+											li.divider
+											li
+												a(href="#",ng-click="field.type=specialField;")
+													input.form-control(type="text",ng-model="specialField",placeholder="Tab for other")
+											li
+												a(href="#")
+													input.form-control(type="text",ng-model="field.mask",placeholder="jQuery.MaskedInput?")
+											li
+												a(href="#",ng-click="deleteField(obj,$index)") DELETE
+					.col-md-8.col-xs-12
+						ul.nav.nav-tabs(role="tablist")
+							li(ng-repeat="template in templates track by $index",ng-class="{active:$parent.selectedTab==$index}")
+								a(href="#",ng-click="$parent.selectedTab=$index")
+									h4
+										i.material-icons(ng-click="download($index)") save
+										| {{template.name}}
+						.panel.panel-default
+							.panel-body
+								div(ng-repeat="template in templates track by $index",ng-include="template.url",ng-show="$parent.selectedTab==$index")
+		script.
+
+			angular.module('app',[]);
+			angular
+				.module('app')
+					.controller('objCtrl',['$scope','$sce',function(sp,$sce){
+						sp.selectedTab=1;
+						sp.specialField='';
+						sp.templates = [{
+							name: 'Object',
+							url: 'Object.html'
+						},{
+							name: 'Repository',
+							url: 'Repository.html'
+						},{
+							name: 'Controller',
+							url: 'Controller.html'
+						},{
+							name: 'ngSvc',
+							url: 'ngSvc.html'
+						},{
+							name: 'JS',
+							url: 'JS.html'
+						},{
+							name: 'DataTable',
+							url: 'DataTable.html'
+						},];
+						sp.download = function($index) {
+							Base64.downloadText($($('textarea')[$index]).text());
+						};
+						sp.objects=[
+									{
+										name:'',
+										fields:[
+											{
+												name:'',
+												type:'String'
+											}
+										]
+									}
+								];
+						sp.newObjClass=function(){
+							sp.objects.push({
+										name:'ObjectName',
+										fields:[
+											{
+												name:'fieldName',
+												type:'String'
+											}
+										]
+									});
+						};
+						sp.keypress=function(e,objClass){
+							if(e.keyCode==13)
+								sp.newField(objClass);
+						};
+						sp.newField=function(objClass){
+							objClass.fields.push({
+												name:'',
+												type:'String'
+											});
+							setTimeout(function(){
+								$('input.field').last().focus();
+							},50);
+						};
+						sp.deleteField=function(objClass,index){
+							var nFields=[];
+							for(var i=0;i<objClass.fields.length;i++)
+								if(i!=index)
+									nFields.push(objClass.fields[i]);
+							objClass.fields=nFields;
+						};
+
+						var localStorageName=prompt('localStorage Name:');
+						 if(localStorage.getItem(localStorageName)!=undefined)
+						 	sp.objects=JSON.parse(localStorage.getItem(localStorageName));
+
+						window.onunload=function(){
+							console.log('saving');
+							localStorage.setItem(sp.objects[0].name,
+											JSON.stringify(sp.objects));
+						};
+
+						sp.Capitalise=function(string)
+						{
+							return string.charAt(0).toUpperCase() + string.slice(1);
+						};
+						sp.lower=function(string)
+						{
+							return string.toLowerCase();
+						};
+						sp.$=function(selector){
+							var txt='';
+							$(selector).each(function(i,o){
+								txt+=$(o).text();
+							});
+							return txt;
+						};
+						sp.sce = function(text) {
+							return $sce.trustAsHtml(text);
+						};
+			}]);
+</script>
+
+
+	<script type="text/javascript">
+		window.onload=function(){
+			document.write(
+					jade.render(
+						document.getElementById('jade').innerHTML,
+						{
+							pretty:'\t',
+							templates:{}
+						}
+					)
+				);
+			document.close();
+		};
+	</script>
+
+	</body>
+</html>

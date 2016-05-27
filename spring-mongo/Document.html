@@ -1,0 +1,60 @@
+<textarea width="100%" class="form-control" rows="46">
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Date;
+import java.util.List;
+import javax.validation.constraints.Size;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+
+@Document
+public class {{Capitalise(obj.name)}} extends BasicRecord {
+
+	public {{Capitalise(obj.name)}}(){
+		super();
+	}
+
+    public {{Capitalise(obj.name)}}({{$('.ObjectCtrl.ConstructorParameters')}}{{$('.ObjectCtrl.ConstructorParameters2')}}){
+            super();
+            {{$('.ObjectCtrl.ConstructorParameters3')}}
+	}
+
+	{{$('.ObjectCtrl.persistentFields')}}
+
+        {{$('.ObjectCtrl.getters')}}
+        {{$('.ObjectCtrl.setters')}}
+}
+</textarea>
+<div class="ObjectCtrl getConstructor" ng-hide="true">
+    public {{Capitalise(obj.name)}}(){
+    
+    }
+</div>
+<div class="ObjectCtrl ConstructorParameters" ng-hide="true" ng-repeat="field in obj.fields track by $index" ng-if="$index!=obj.fields.length-1">
+{{field.type}} {{field.name}},
+</div>
+<div class="ObjectCtrl ConstructorParameters2" ng-hide="true" ng-repeat="field in obj.fields track by $index" ng-if="$index==obj.fields.length-1">
+{{field.type}} {{field.name}}
+</div>
+
+
+<div class="ObjectCtrl ConstructorParameters3" ng-hide="true" ng-repeat="field in obj.fields">
+this.{{field.name}}={{field.name}};
+</div>
+<div class="ObjectCtrl getters" ng-hide="true" ng-repeat="field in obj.fields">
+    public {{field.type}} get{{Capitalise(field.name)}}(){
+        return this.{{field.name}};
+    }
+</div>
+<div class="ObjectCtrl setters" ng-hide="true" ng-repeat="field in obj.fields">
+    public void set{{Capitalise(field.name)}}({{field.type}} {{field.name}}){
+        this.{{field.name}}={{field.name}};
+    }
+</div>
+<div class="ObjectCtrl persistentFields" ng-hide="true" ng-repeat="field in obj.fields" ng-if="!field.isPK">
+private {{field.type}} {{field.name}};
+</div>
+<div class="ObjectCtrl persistentFields" ng-hide="true" ng-repeat="field in obj.fields" ng-if="field.isPK">
+@Id
+private {{field.type}} {{field.name}};
+</div>

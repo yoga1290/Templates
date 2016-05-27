@@ -1,0 +1,47 @@
+<textarea width="100%" class="form-control" rows="46">
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+
+@Service
+public class {{Capitalise(obj.name)}}Repository extends BasicDaoImpl<{{Capitalise(obj.name)}}>{
+
+	public {{Capitalise(obj.name)}}Repository() {
+		super({{Capitalise(obj.name)}}.class);
+	}
+        {{$('.Repository.finders')}}
+}
+
+</textarea>
+
+<div ng-repeat="field in obj.fields" ng-hide="true" class="Repository finders">
+    public List<{{Capitalise(obj.name)}}> findBy{{Capitalise(field.name)}}({{field.type}} {{field.name}}, int offset, int limit) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("{{field.name}}").is({{field.name}}));
+        return find(query, offset, limit);
+    }
+</div>
+<div ng-repeat="field in obj.fields" ng-hide="true" class="Repository finders" ng-if="field.type=='long'">
+public List<{{Capitalise(obj.name)}}> findByTop{{Capitalise(field.name)}}(int offset, int limit) {
+    Query query = new Query();
+    query.with(new Sort(Sort.Direction.DESC, "{{field.name}}"));
+    return find(query, offset, limit);
+}
+</div>
+
+<div ng-repeat="field in obj.fields" ng-hide="true" class="Repository finders" ng-if="field.type=='long'">
+public List<{{Capitalise(obj.name)}}> findWithin{{Capitalise(field.name)}}(long start, long end, int offset, int limit) {
+    Query query = new Query();
+    query.addCriteria(Criteria.where("{{field.name}}").gte(start));
+    query.addCriteria(Criteria.where("{{field.name}}").lte(end));
+    return find(query, offset, limit);
+}
+</div>
+
+
+<div ng-repeat="field in obj.fields" ng-hide="true" class="Repository PKType" ng-if="field.isPK">{{field.type}}</div>

@@ -1,0 +1,62 @@
+<textarea width="100%" class="form-control" rows="46">
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Map;
+
+public class trNgGridDTO {
+        private Map<String, String> filterByFields;
+        private Map<String, String> mandatoryFilters;
+          @JsonInclude
+        private String orderBy;
+          @JsonInclude
+        private String orderByType;
+        @JsonInclude
+        private int currentPage;
+        @JsonInclude
+        private int pageItems;
+        public trNgGridDTO() {
+        }
+        public trNgGridDTO(Map<String, String> filterByFields, String orderBy, String orderByType, int currentPage, int pageItems) {
+            this.filterByFields = filterByFields;
+            this.orderBy = orderBy;
+            this.orderByType = orderByType;
+            this.currentPage = currentPage;
+            this.pageItems = pageItems;
+        }
+        public Map<String, String> getFilterByFields() {
+            return filterByFields;
+        }
+        public void setFilterByFields(Map<String, String> filterByFields) {
+            this.filterByFields = filterByFields;
+        }
+        public String getOrderBy() {
+            return orderBy;
+        }
+        public void setOrderBy(String orderBy) {
+            this.orderBy = orderBy;
+        }
+        public String getOrderByType() {
+            return orderByType;
+        }
+        public void setOrderByType(String orderByType) {
+            this.orderByType = orderByType;
+        }
+        public int getCurrentPage() {
+            return currentPage;
+        }
+        public void setCurrentPage(int currentPage) {
+            this.currentPage = currentPage;
+        }
+        public int getPageItems() {
+            return pageItems;
+        }
+        public void setPageItems(int pageItems) {
+            this.pageItems = pageItems;
+        }
+        public Map<String, String> getMandatoryFilters() {
+            return mandatoryFilters;
+        }
+        public void setMandatoryFilters(Map<String, String> mandatoryFilters) {
+            this.mandatoryFilters = mandatoryFilters;
+        }
+    }
+</textarea>

@@ -1,0 +1,12 @@
+{
+  "name": "LocalServer",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.13.4"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yoga1290"
+}

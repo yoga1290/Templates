@@ -1,0 +1,165 @@
+<textarea width="100%" class="form-control" rows="46">
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+
+@Controller
+@RequestMapping(value="/{{lower(obj.name)}}",produces="application/json")
+public class {{Capitalise(obj.name)}}Svc
+{
+	@Autowired
+	private {{Capitalise(obj.name)}}Repository {{obj.name}}s;
+
+	@RequestMapping(value="/{{lower(obj.name)}}s/all", method=RequestMethod.GET)
+	public @ResponseBody Collection<{{Capitalise(obj.name)}}> get{{Capitalise(obj.name)}}List(){
+		return com.google.appengine.repackaged.com.google.common.collect.Lists.newArrayList({{obj.name}}s.findAll());
+	}
+
+
+	@RequestMapping(value="/list", method=RequestMethod.GET)
+	public @ResponseBody Collection<{{Capitalise(obj.name)}}> list(@RequestParam int offset,@RequestParam int limit){
+		return {{obj.name}}s.findAll(offset,limit);
+	}
+
+	@RequestMapping(value="/", method=RequestMethod.GET)
+	public @ResponseBody {{Capitalise(obj.name)}} findOne(@RequestParam {{$('.Controller.PKType')}} id)
+	{
+		return {{obj.name}}s.findOne(id);
+	}
+
+	@RequestMapping(value="/insert", method=RequestMethod.POST)
+	public @ResponseBody {{Capitalise(obj.name)}} insert(
+					//@RequestBody {{Capitalise(obj.name)}} o{{obj.name}})
+					{{$('.Controller.getCtrlInsertParameters')}})
+	{
+		{{Capitalise(obj.name)}} {{lower(obj.name)}}=new {{Capitalise(obj.name)}}();
+
+		{{$('.Controller.getCtrlInsertFields')}}
+		return {{obj.name}}s.save({{lower(obj.name)}});
+	}
+
+	@RequestMapping(value="/update/{id}", method=RequestMethod.POST)
+	public @ResponseBody {{Capitalise(obj.name)}} update(
+					{{$('.Controller.getCtrlUpdateParameters')}})
+	{
+		{{Capitalise(obj.name)}} {{lower(obj.name)}}={{obj.name}}s.findOne({{$('.Controller.PKType')}});
+
+		{{$('.Controller.getCtrlInsertFields')}}
+		return {{obj.name}}s.update({{lower(obj.name)}});
+	}
+
+	{{$('.Controller.finders')}}
+
+	@RequestMapping(value="/DataTable",produces="application/json", method=RequestMethod.POST)
+	public @ResponseBody dataTableResponse datatable(
+		HttpServletResponse									response,
+
+		@RequestParam(value="draw") 						int 		draw,
+		@RequestParam(value="start") 						int 		start,
+		@RequestParam(value="length") 						int 		length,
+		@RequestParam(value="search[value]") 				String 		search,
+
+		//custom; see https://datatables.net/examples/server_side/custom_vars.html
+		@RequestParam(value="order")			 			String  	orderDir,
+		@RequestParam(value="colName") 						String  	colName
+	) throws Exception
+	{
+		try{
+			Collection data={{obj.name}}s.find(search,colName,orderDir.equals("asc"),start, length);
+			int count={{obj.name}}s.count();
+			return new dataTableResponse(draw,count,count,data);
+		}catch(Exception e){
+			response.sendError(500, e.getLocalizedMessage()+"");
+			return null;
+		}
+	}
+
+}
+
+// uncomment the next line, iff dataTableResponse class wasn't previously defined
+/*
+class dataTableResponse{
+	public int draw;
+	public int recordsTotal;
+	public int recordsFiltered;
+	public Collection data;
+	public dataTableResponse(	int 		draw,
+								int 		recordsTotal,
+								int 		recordsFiltered,
+								Collection 	data){
+		this.draw=draw;
+		this.recordsTotal=recordsTotal;
+		this.recordsFiltered=recordsFiltered;
+		this.data=data;
+	}
+}
+//*/
+</textarea>
+
+<div ng-repeat="field in obj.fields track by $index" 
+class="Controller getCtrlInsertParameters" ng-hide="true" ng-if="$index!=obj.fields.length-1">
+@RequestParam {{field.type}} {{field.name}},
+</div><div ng-repeat="field in obj.fields track by $index" 
+class="Controller getCtrlInsertParameters" ng-hide="true" ng-if="$index==obj.fields.length-1">
+@RequestParam {{field.type}} {{field.name}}
+</div>
+
+<div 
+class="Controller getCtrlInsertFields" ng-hide='true'
+ng-repeat="field in obj.fields track by $index" ng-if="!field.isPK">
+	{{lower(obj.name)}}.set{{Capitalise(field.name)}}({{field.name}});
+</div>
+
+
+<div 
+class="Controller getCtrlUpdateParameters" ng-hide='true'
+ng-repeat="field in obj.fields track by $index" ng-if="field.isPK">
+@PathVariable(value="id") {{field.type}} {{field.name}},
+</div>
+<div 
+class="Controller getCtrlUpdateParameters" ng-hide='true'
+ng-repeat="field in obj.fields track by $index" ng-if="!field.isPK && $index!=obj.fields.length-1">
+@RequestParam {{field.type}} {{field.name}},
+</div>
+<div 
+class="Controller getCtrlUpdateParameters" ng-hide='true'
+ng-repeat="field in obj.fields track by $index" ng-if="!field.isPK && $index==obj.fields.length-1">
+@RequestParam {{field.type}} {{field.name}}
+</div>
+
+
+
+<div
+class="Controller PKType" ng-hide='true'
+ng-repeat="field in obj.fields track by $index" ng-if="field.isPK">
+{{field.type}}
+</div>
+
+<div
+class="Controller finders" ng-hide="true"
+ng-repeat="field in obj.fields track by $index">
+@RequestMapping(value="/findBy{{Capitalise(field.name)}}",produces="application/json;charset=UTF-8" , method=RequestMethod.GET)
+	public @ResponseBody Collection<{{Capitalise(obj.name)}}> findBy{{Capitalise(field.name)}}(@RequestParam {{field.type}} {{lower(field.name)}})
+	{
+		return {{obj.name}}s.findBy{{Capitalise(field.name)}}({{lower(field.name)}});
+	}
+</div>
+<div
+class="Controller finders" ng-hide="true" ng-if="field.type=='Long'"
+ng-repeat="field in obj.fields track by $index">
+@RequestMapping(value="/findByTop{{Capitalise(field.name)}}",produces="application/json;charset=UTF-8" , method=RequestMethod.GET)
+	public @ResponseBody Collection<{{Capitalise(obj.name)}}> findByTop{{Capitalise(field.name)}}(@RequestParam int offset,@RequestParam int limit)
+	{
+		return {{obj.name}}s.findByTop{{Capitalise(field.name)}}(offset,limit);
+	}
+</div>

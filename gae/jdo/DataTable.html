@@ -1,0 +1,197 @@
+<textarea width="100%" class="form-control" rows="46">
+var datatable_{{obj.name}}={
+	api:{},
+	table:{},
+	DDL:{},
+	DDL_KVC:{},
+	order:'asc',
+	colName:'',
+	getEditTemplate:function(row){
+		return '<form onsubmit="return false;"><table>'
+						{{listEditTemplateElements(obj)}}
+					+'<tr>'
+						+'<td colspan="2"><button onclick="datatable_{{obj.name}}.actions.edit('+row.{{getPrimaryKeysFieldName(obj)}}+',$(this).closest(\'form\'));">Update</button></td>'
+					+'</tr>'
+				+'</table></form>';
+	},
+	getInsertTemplate:function(){
+		return '<form onsubmit="return false;"><table>'
+						{{listInsertTemplateElements(obj)}}
+					+'<tr>'
+						+'<td colspan="2"><button onclick="datatable_{{obj.name}}.actions.insert($(this).closest(\'form\'));">Insert</button></td>'
+					+'</tr>'
+				+'</table></form>';
+	},
+	bindTemplateDDL:function(Template){
+		$(Template).find('select').each(function(i,o){
+			var name=$(this).attr('name');
+            var i,html="";
+            if(datatable_menu.DDL[name+""]!=undefined)
+            for(i=0;i<datatable_menu.DDL[name+""].length;i++)
+                html+="<option value='"+datatable_menu.DDL[name+""][i][""+datatable_menu.DDL_KVC[name+""].key]+"'>"+datatable_menu.DDL[name+""][i][""+datatable_menu.DDL_KVC[name+""].value]+"</option>";
+            $(this).html(html);
+		});
+	},
+	bindEditTemplateDDL:function(){
+		$('#datatable_{{obj.name}} tbody tr select').each(function(i,o){
+			var name=$(this).attr('name');
+            var i,html="";
+            //var row=$(o).parent().parent().parent().parent().parent().parent().parent().prev();
+            var row=$(o).parents('tr').last().prev();
+            var data=datatable_{{obj.name}}.api.row(row).data();
+            if(datatable_{{obj.name}}.DDL[name+""]!=undefined)
+            for(i=0;i<datatable_{{obj.name}}.DDL[name+""].length;i++)
+            {
+                if(data[name+""]==datatable_{{obj.name}}.DDL[name+""][i][""+datatable_{{obj.name}}.DDL_KVC[name+""].key])
+                    html+="<option value='"+datatable_{{obj.name}}.DDL[name+""][i][""+datatable_{{obj.name}}.DDL_KVC[name+""].key]+"' selected>"+datatable_{{obj.name}}.DDL[name+""][i][""+datatable_{{obj.name}}.DDL_KVC[name+""].value]+"</option>";
+                else
+                    html+="<option value='"+datatable_{{obj.name}}.DDL[name+""][i][""+datatable_{{obj.name}}.DDL_KVC[name+""].key]+"'>"+datatable_{{obj.name}}.DDL[name+""][i][""+datatable_{{obj.name}}.DDL_KVC[name+""].value]+"</option>";
+            }
+            $(this).html(html);
+		});
+	},
+	bindEditTemplate:function(row,template){
+		//TODO: Bind DDL; find elements by form name (template.find('[name=IsDeleted]'))
+		template.find('input[mask]').each(function(i,o){
+			$(o).mask($(o).attr('mask'));
+		});
+		template.find('.datepicker').each(function(i,o){
+			$(o).datepicker("option", "dateFormat", "Y-m-d H:i:s" );
+		});
+		{{bindEditTemplateCheckbox(obj)}}
+		{{preBindEditTemplateDDL(obj)}}
+	},
+	actions:{
+		insert:function(form){
+			{{Capitalise(obj.name)}}Svc.insertForm(form,function(){
+            	datatable_{{obj.name}}.api.draw(false);
+                datatable_{{obj.name}}.setListeners();
+            });
+		},
+		edit:function(id,form){
+
+            {{Capitalise(obj.name)}}Svc.updateForm(id,form,function(){
+            	datatable_{{obj.name}}.api.draw(false);
+                datatable_{{obj.name}}.setListeners();
+            });
+
+			$(datatable_{{obj.name}}.table).find(' tr.selected').each(function(i,o){
+				$(o).removeClass('selected');
+			});
+		},
+		delete:function(o){
+			var {{getPrimaryKeysFieldName(obj)}}
+					=datatable_{{obj.name}}.api.row($(o).closest('tr'))
+						.data().{{getPrimaryKeysFieldName(obj)}};
+
+				{{Capitalise(obj.name)}}Svc.delete({{getPrimaryKeysFieldName(obj)}},function(){
+					//de-select the item(s)
+					$(datatable_{{obj.name}}.table).find(' tr.selected')
+						.each(function(i,o){
+		                	$(o).removeClass('selected');
+		            });
+		            datatable_{{obj.name}}.api.draw(false);
+		            datatable_{{obj.name}}.setListeners();
+				});
+
+
+		},
+		deleteAll:function(){
+			var {{getPrimaryKeysFieldName(obj)}}=[];
+			$(datatable_{{obj.name}}.table).find(' tr.selected').each(function(i,o){
+				$(o).removeClass('selected');
+
+				{{getPrimaryKeysFieldName(obj)}}
+					.push(
+						datatable_{{obj.name}}.api.row($(o))
+						.data().{{getPrimaryKeysFieldName(obj)}}
+						);
+			});
+			{{Capitalise(obj.name)}}Svc.deleteAll({{getPrimaryKeysFieldName(obj)}},function(){
+					//de-select the item(s)
+					$(datatable_{{obj.name}}.table).find(' tr.selected')
+						.each(function(i,o){
+		                	$(o).removeClass('selected');
+		            });
+		            datatable_{{obj.name}}.api.draw(false);
+		            datatable_{{obj.name}}.setListeners();
+				});
+		}
+	},
+	setListeners:function(){
+		$(datatable_{{obj.name}}.table).find( ' tbody').on('click','tr td.edit',function(){
+			var row=datatable_{{obj.name}}.api.row($(this).closest('tr'));
+			debug=row;
+			if(row.child.isShown())
+				row.child.hide();
+			else
+			{
+				row.child(
+						datatable_{{obj.name}}.getEditTemplate(row.data())
+					).show();
+				datatable_{{obj.name}}.bindEditTemplate(row.data(),row.child());
+			}
+		});
+		$(datatable_{{obj.name}}.table).find( ' tbody').on('click','tr td.delete',function(){
+			datatable_{{obj.name}}.actions.delete(this);
+		});
+		$(datatable_{{obj.name}}.table).find( ' tbody').on('click','tr[role=row]',function(){
+			$(this).toggleClass('selected');
+		});
+		$(datatable_{{obj.name}}.table).find( ' td.checkbox').each(function(i,o){
+			$(o).html('<input type="checkbox" '+
+				( datatable_{{obj.name}}.api.cell($(o)).data()=='1' ? 'checked':'')
+				+' disabled/>');
+		});
+		$(datatable_{{obj.name}}.table).find( ' td.needsDataBind').each(function(i,cell){
+            var id=datatable_{{obj.name}}.api.cell($(cell)).data();
+            var colInd=datatable_{{obj.name}}.api.cell(cell)[0][0].column;
+            var colTitle=$(datatable_{{obj.name}}.api.column(colInd).header()).text();
+
+            {{bindTableDDL(obj)}}
+
+        });
+	},
+
+	init:function(table){
+		datatable_{{obj.name}}.table=$(table);
+		datatable_{{obj.name}}.api=
+			$(datatable_{{obj.name}}.table).DataTable({
+				processing:true,
+				serverSide:true,
+				//scrollY:'200px',
+				ajax:
+				{
+					url:'{{lower(obj.name)}}/DataTable',
+					type:'POST',
+					data:function(d){
+						// see https://datatables.net/examples/server_side/custom_vars.html
+						d.order=datatable_{{obj.name}}.order;
+						d.colName=datatable_{{obj.name}}.colName;
+					}
+				},
+				drawCallback:function(settings){
+					datatable_{{obj.name}}.setListeners();
+				},
+				columns:[ {
+		                    title:'Edit',
+		                "class":          "edit",
+		                "orderable":      false,
+		                "data":           null,
+		                "defaultContent": "Edit"
+		                },
+		                {
+		                    title:'Delete',
+		                "class":          "delete",
+		                "orderable":      false,
+		                "data":           null,
+		                "defaultContent": "Delete"
+		                },
+{{listDTColumns(obj)}}
+			]
+
+		});
+
+	}
+};
+</textarea>

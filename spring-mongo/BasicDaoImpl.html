@@ -1,0 +1,125 @@
+<textarea width="100%" class="form-control" rows="46">
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import org.json.simple.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+
+
+public class BasicDaoImpl<T extends BasicRecord> {
+    @Autowired
+    @Qualifier(value = "mongoTemplate")
+    MongoOperations mongoOperation;
+    
+    @Autowired
+    UserService userService;
+    
+    private Class<T> type_;
+    public BasicDaoImpl(Class<T> type){
+            type_ = type;
+    }
+    
+    public void save(T record) {
+        record.setModificationTime(new Date().getTime());
+        if(record.getCreationTime() == record.getModificationTime()) {
+            record.setCreatorId(userService.getLoggedInUser().getId());
+        }
+        mongoOperation.save(record);
+    }
+    
+    public List<T> find(Query query) {
+        query.addCriteria(Criteria.where("isDeleted").is(false));
+        return mongoOperation.find(query, type_);
+    }
+
+    public List<T> find(Query query, int offset, int limit) {
+        query.addCriteria(Criteria.where("isDeleted").is(false));
+        query.skip(offset).limit(limit);
+        return mongoOperation.find(query, type_);
+    }
+    
+    public T findOne(Query query) {
+        query.addCriteria(Criteria.where("isDeleted").is(false));
+        return mongoOperation.findOne(query, type_);
+    }
+
+    public long count(Query query) {
+        query.addCriteria(Criteria.where("isDeleted").is(false));
+        return mongoOperation.count(query, type_);
+    }
+    
+    public void findAndRemove(Query query) {
+        Iterator<T> records = mongoOperation.find(query, type_).iterator();
+        while(records.hasNext()) {
+            T cur = records.next();
+            cur.setIsDeleted(true);
+            save(cur);
+        }
+    }
+    
+    public void delete(Query query) {
+        Iterator<T> records = mongoOperation.find(query, type_).iterator();
+        while(records.hasNext()) {
+            T cur = records.next();
+            cur.setIsDeleted(true);
+            save(cur);
+        }
+    }
+    
+    public JSONObject trNgGrid(trNgGridDTO q, Criteria mandatoryFields, boolean isASC, boolean isGlobal) {
+        Query query = new Query();
+
+        LinkedList<Criteria>  criterias=new LinkedList<Criteria>();
+        for (Map.Entry entry : q.getFilterByFields().entrySet())
+                criterias.add(Criteria.where((String)entry.getKey()).regex("^("+entry.getValue()+")"));
+        
+        //mandatoryCriterias send as part of the query:
+        LinkedList<Criteria>  mandatoryCriteriasList=new LinkedList<Criteria>();
+        for (Map.Entry entry : q.getMandatoryFilters().entrySet())
+                mandatoryCriteriasList.add(Criteria.where((String)entry.getKey()).regex("^("+entry.getValue()+")"));
+        Criteria mandatoryCriterias[]=new Criteria[mandatoryCriteriasList.size()];
+        mandatoryCriteriasList.toArray(mandatoryCriterias);
+        if(mandatoryCriterias.length>0)
+            query.addCriteria(new Criteria().andOperator(mandatoryCriterias));
+        
+        Criteria allCriterias[] = new Criteria[criterias.size()];
+        criterias.toArray(allCriterias);
+        
+        if(allCriterias.length>0)
+            if(isGlobal)
+                query.addCriteria(new Criteria().orOperator(allCriterias));
+            else
+                query.addCriteria(allCriterias[0].andOperator(allCriterias));
+        
+        // Server-side filters:
+        if(mandatoryFields!=null)
+            query.addCriteria(mandatoryFields);
+        
+        if(q.getOrderBy()!=null)
+            query.with(new Sort(isASC ? Sort.Direction.ASC:Sort.Direction.DESC, q.getOrderBy()));
+        long total = mongoOperation.count(query, type_);
+        if(q.getCurrentPage()*q.getPageItems()<total)
+            query.skip(q.getCurrentPage()*q.getPageItems());
+        query.limit(q.getPageItems());
+        
+        List<T> data = (List<T>) mongoOperation.find(query, type_);
+        
+        JSONArray jsonData=new JSONArray();
+                  jsonData.addAll(data);
+        return new JSONObject()
+                    .put("total", total)
+                    .put("data", jsonData );
+    }
+}
+
+
+</textarea>

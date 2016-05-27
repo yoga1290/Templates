@@ -1,0 +1,240 @@
+<textarea class="form-control" rows="40">
+package {{authority}};
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.AbstractThreadedSyncAdapter;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SyncResult;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
+import android.widget.RemoteViews;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Calendar;
+import java.util.Date;
+
+
+public class SyncService extends Service {
+
+    public static final String ACCOUNT = "Your Account";
+
+    public static void Init(Context context)
+    {
+        Account mAccount;
+        mAccount = new Account(
+                ACCOUNT,
+                context.getResources().getString(R.string.account_type));
+
+        // Get an instance of the Android account manager
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(
+                        ACCOUNT_SERVICE);
+        /*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         */
+        Log.i(TAG,"CreateSyncAccount");
+        if (accountManager.addAccountExplicitly(mAccount, null, null)) {
+            /*
+             * If you don't set android:syncable="true" in
+             * in your <provider> element in the manifest,
+             * then call context.setIsSyncable(account, AUTHORITY, 1)
+             * here.
+             */
+            System.out.println("CreateSyncAccount/if");
+        } else {
+            System.out.println("CreateSyncAccount/else");
+        }
+
+        ContentResolver mResolver;
+        // Get the content resolver for your app
+        mResolver = context.getContentResolver();
+        // Turn on automatic syncing for the default account and authority
+        mResolver.setSyncAutomatically(mAccount,
+                context.getResources().getString(R.string.contentAuthority)
+                , true);
+        mResolver.setMasterSyncAutomatically(true);
+
+
+
+        // requestSync:
+        Bundle syncBundle = new Bundle();
+        mResolver.addPeriodicSync(
+            mAccount,
+            context.getResources().getString(R.string.contentAuthority),
+            syncBundle,
+                1L*60L*60L*1000L
+            );
+        mResolver.requestSync(mAccount,
+                context.getResources().getString(R.string.contentAuthority)
+                , syncBundle);
+    }
+    public static void SyncNOW(Context context)
+    {
+        Account mAccount;
+        // Create the account type and default account
+        mAccount = new Account(
+                ACCOUNT,
+                context.getResources().getString(R.string.account_type));
+
+        // Get an instance of the Android account manager
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(
+                        ACCOUNT_SERVICE);
+        /*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         */
+        Log.i(TAG,"CreateSyncAccount");
+        if (accountManager.addAccountExplicitly(mAccount, null, null)) {
+            /*
+             * If you don't set android:syncable="true" in
+             * in your <provider> element in the manifest,
+             * then call context.setIsSyncable(account, AUTHORITY, 1)
+             * here.
+             */
+            System.out.println("CreateSyncAccount/if");
+        } else {
+            System.out.println("CreateSyncAccount/else");
+        }
+
+        Bundle syncBundle = new Bundle();
+        ContentResolver.requestSync(mAccount,
+                context.getResources().getString(R.string.contentAuthority)
+                , syncBundle);
+    }
+
+
+
+    public static final String TAG="yoga1290";
+    // Storage for an instance of the sync adapter
+    private static AbstractThreadedSyncAdapter sSyncAdapter = null;
+    // Object to use as a thread-safe lock
+    private static final Object sSyncAdapterLock = new Object();
+    /*
+     * Instantiate the sync adapter object.
+     */
+    @Override
+    public void onCreate() {
+        Log.i(TAG, "SyncService.onCreate");
+        /*
+         * Create the sync adapter as a singleton.
+         * Set the sync adapter as syncable
+         * Disallow parallel syncs
+         */
+        synchronized (sSyncAdapterLock) {
+            if (sSyncAdapter == null) {
+
+                sSyncAdapter= new AbstractThreadedSyncAdapter(getApplicationContext(),true){
+
+                            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                            @Override
+                            public void onPerformSync(
+                                    Account account,
+                                    Bundle extras,
+                                    String authority,
+                                    ContentProviderClient provider,
+                                    SyncResult syncResult) {
+
+                                Log.i(TAG, "SyncAdapter.onPerformSync");
+
+                                //            ContentValues values=new ContentValues();
+                                //            values.put(NewsContentProvider.Contract.FIELD_ID, 1);
+                                //            values.put(NewsContentProvider.Contract.FIELD_NAME, "post data from sync");
+                                //            try {
+                                //                provider.insert(PostsContract.CONTENT_URI, values);
+                                //            } catch (RemoteException e) {
+                                //                // TODO Auto-generated catch block
+                                //                e.printStackTrace();
+                                //            }
+
+                                try {
+                                    /*
+                                    JSONArray feed=facebookPageUtil.getFeed().getJSONArray("data");
+                                    JSONObject cur;
+                                    for(int i=0;i<feed.length();i++)
+                                    {
+                                        cur=feed.getJSONObject(i);
+                                        String message=cur.getString("message");
+
+
+                                        String time=cur.getString("created_time");
+
+                                        com.appspot.aldostourfans.aldostourfans.model.feed feedDB= new feed(getContentResolver());
+
+                                        // prevously stored?... skip all
+                                        if(feedDB.get_where_CREATEDAT(time).length>0) return;
+
+
+                                        feedDB.insert(time,"","");
+                                        //*/
+                            // /*
+                                        final Intent restartMainActivtyIntent = new Intent(getApplicationContext(),
+                                                MainActivity.class);
+                                        restartMainActivtyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+
+                                        RemoteViews remoteView=new RemoteViews(
+                                                getApplicationContext().getPackageName(),
+                                                R.layout.notification);
+                                        remoteView.setTextViewText(R.id.notification_textView,"Hello Notification");
+
+                                        Notification.Builder notificationBuilder = new Notification.Builder(getApplicationContext())
+                                                .setContentIntent(
+                                                        PendingIntent.getActivity(getApplicationContext(), 0, restartMainActivtyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+                                                )
+                                                .setContent(
+                                                    remoteView
+                                                )
+                                                .setSmallIcon(android.R.drawable.stat_sys_download_done)
+                                                .setAutoCancel(true);
+                                        NotificationManager mNotificationManager=(NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                        mNotificationManager.notify(12901, notificationBuilder.build());
+                                        //*/
+                                //    }
+
+
+
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+            }
+        }
+    }
+    /**
+     * Return an object that allows the system to invoke
+     * the sync adapter.
+     *
+     */
+    @Override
+    public IBinder onBind(Intent intent) {
+        /*
+         * Get the object that allows external processes
+         * to call onPerformSync(). The object is created
+         * in the base class code when the SyncAdapter
+         * constructors call super()
+         */
+        Log.i(TAG, "SyncService.onBind");
+
+        return sSyncAdapter.getSyncAdapterBinder();
+    }
+
+}
+</textarea>

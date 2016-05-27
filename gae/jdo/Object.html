@@ -1,0 +1,82 @@
+<textarea width="100%" class="form-control" rows="46">
+import java.util.Objects;
+
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
+
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+
+
+@PersistenceCapable
+public class {{Capitalise(obj.name)}} {
+/*
+	@PrimaryKey
+	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	private long key;
+	public long getKey() {
+		return this.key;
+	}
+	public void setKey(long key) {
+		this.key = key;
+	}
+    private Key key;
+	public void setKey(Key key) {
+		this.key = key;
+	}
+	public void setKey(String key) {
+		this.key = KeyFactory.createKey(this.getClass().getSimpleName(), key);
+	}
+	//*/
+
+	public {{Capitalise(obj.name)}}(){
+
+	}
+
+        public {{Capitalise(obj.name)}}({{$('.ObjectCtrl.ConstructorParameters')}}{{$('.ObjectCtrl.ConstructorParameters2')}}){
+            {{$('.ObjectCtrl.ConstructorParameters3')}}
+	}
+
+	{{$('.ObjectCtrl.persistentFields')}}
+
+        {{$('.ObjectCtrl.getters')}}
+        {{$('.ObjectCtrl.setters')}}
+}
+</textarea>
+<div class="ObjectCtrl getConstructor" ng-hide="true">
+    public {{Capitalise(obj.name)}}(){
+    
+    }
+</div>
+<div class="ObjectCtrl ConstructorParameters" ng-hide="true" ng-repeat="field in obj.fields track by $index" ng-if="$index!=obj.fields.length-1">
+{{field.type}} {{field.name}},
+</div>
+<div class="ObjectCtrl ConstructorParameters2" ng-hide="true" ng-repeat="field in obj.fields track by $index" ng-if="$index==obj.fields.length-1">
+{{field.type}} {{field.name}}
+</div>
+
+
+<div class="ObjectCtrl ConstructorParameters3" ng-hide="true" ng-repeat="field in obj.fields">
+this.{{field.name}}={{field.name}};
+</div>
+<div class="ObjectCtrl getters" ng-hide="true" ng-repeat="field in obj.fields">
+    public {{field.type}} get{{Capitalise(field.name)}}(){
+        return this.{{field.name}};
+    }
+</div>
+<div class="ObjectCtrl setters" ng-hide="true" ng-repeat="field in obj.fields">
+    public void set{{Capitalise(field.name)}}({{field.type}} {{field.name}}){
+        this.{{field.name}}={{field.name}};
+    }
+</div>
+<div class="ObjectCtrl persistentFields" ng-hide="true" ng-repeat="field in obj.fields" ng-if="!field.isPK">
+@Persistent
+private {{field.type}} {{field.name}};
+</div>
+<div class="ObjectCtrl persistentFields" ng-hide="true" ng-repeat="field in obj.fields" ng-if="field.isPK">
+@PrimaryKey
+@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+private {{field.type}} {{field.name}};
+</div>

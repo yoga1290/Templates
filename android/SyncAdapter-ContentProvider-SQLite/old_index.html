@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>SyncAdapter + ContentProvider + SQLite:</title>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/js/jade.js"></script>
+  </head>	
+  <body style='background-color: #f9faf7;'>
+
+
+<script type="text/template" id="Strings">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Hello World</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="account_type">{{account_type}}</string>
+    <string name="contentAuthority">{{authority}}</string>
+    <string name="provider_label">provider_name</string>
+
+</resources>
+</script>
+
+
+<script type="text/template" id="AccountAuthenticator">
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accountType="@string/account_type"
+    android:icon="@drawable/ic_launcher"
+    android:smallIcon="@drawable/ic_launcher"
+    android:label="@string/app_name"
+    />
+
+</script>
+<script type="text/template" id="SyncAdapter">
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
+    android:contentAuthority="@string/contentAuthority"
+    android:accountType="@string/account_type"
+    android:userVisible="true"
+    android:supportsUploading="true"
+    android:allowParallelSyncs="false"
+    android:isAlwaysSyncable="true"
+    />
+</script>
+
+<script type="text/template" id="Repository">
+package {{authority}};
+
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+
+public class {{table.name}}
+{
+    private ContentResolver contentResolver;
+    public static final int
+    	{{getContactField(table)}}
+    	ID=0;
+    public static final String
+            TABLE_NAME="{{table.name}}",
+
+            DATABASE_NAME="{{databaseName}}";
+    public static final String SQL_CREATE="{{getCreateSQL(table)}}";
+    public static final String SQL_DROP="DROP TABLE IF EXISTS {{table.name}}";
+
+	{{getPROJECTION(table)}}
+
+    public static final String AUTHORITY = "{{authority}}";
+    public static final Uri {{table.name}}URI=Uri.parse("content://"+AUTHORITY+"/"+TABLE_NAME);
+
+    public {{table.name}}(ContentResolver contentResolver)
+    {
+        this.contentResolver=contentResolver;
+    }
+
+    public static String[][] cursor2Array(Cursor c)
+    {
+        String res[][]=new String[c.getCount()][PROJECTION.length];
+        for(int i=0;i<c.getCount();i++) {
+            c.moveToNext();
+            for (int j = 0; j < PROJECTION.length; j++)
+                res[i][j] =c.getString(j);
+        }
+        return res;
+    }
+
+    public String[][] get(){
+        return 
+        	cursor2Array(
+	        	contentResolver.query(
+	                {{table.name}}URI,
+	                PROJECTION,
+	                null,
+	                null
+	                ,null)
+	        );
+    }
+    
+    {{getGetters(table)}}
+
+    {{getINSERTstatment(table)}}
+
+    {{getDELETEStatments(table)}}
+}
+</script>
+
+<script type="text/template" id="ContentProvider">
+package {{authority}};
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
+import android.net.Uri;
+import android.util.Log;
+
+public class ContentProvider extends android.content.ContentProvider {
+
+	@Override
+	public String getType(Uri uri) {
+		// TODO: Implement this to handle requests for the MIME type of the data
+		// at the given URI.
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	private SQLiteDatabase database;
+	private String DATABASE_NAME="{{databaseName}}";
+    private int DATABASE_VERSION=1;
+
+	/*
+	Called when the database is created for the first time.
+	*/
+	@Override
+	public boolean onCreate() {
+		SQLiteOpenHelper dbHelper=new SQLiteOpenHelper(getContext(),DATABASE_NAME, null,DATABASE_VERSION) {
+	                        @Override
+	                        public void onCreate(SQLiteDatabase sqLiteDatabase) {
+	                            {{getAllCreateSQL(tables)}}
+	                        }
+
+	                        @Override
+	                        public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+	                            {{getAllDropSQL(tables)}}
+	                            onCreate(sqLiteDatabase);
+	                        }
+	                    };
+		database = dbHelper.getWritableDatabase();
+		return (database != null);
+	}
+
+	@Override
+	public Cursor query(Uri uri, String[] projection, String selection,
+			String[] selectionArgs, String sortOrder) {
+		return database.query(uri.getLastPathSegment(),projection,selection,selectionArgs,null,null,sortOrder);
+	}
+
+	@Override
+	public Uri insert(Uri uri, ContentValues values) {
+		long id=database.insertWithOnConflict(uri.getLastPathSegment(), null, values, SQLiteDatabase.CONFLICT_REPLACE);
+		return Uri.parse(uri.toString()+"/"+id);
+	}
+
+	@Override
+	public int update(Uri uri, ContentValues values, String selection,
+		String[] selectionArgs) {
+		return database.update(uri.getLastPathSegment(),values,selection,selectionArgs);
+	}
+	@Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        return database.delete(uri.getLastPathSegment(),selection,selectionArgs);
+    }
+}
+</script>
+
+
+<script type="text/template" id="SyncService">
+package {{authority}};
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.AbstractThreadedSyncAdapter;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SyncResult;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
+import android.widget.RemoteViews;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Calendar;
+import java.util.Date;
+
+
+public class SyncService extends Service {
+
+    public static final String ACCOUNT = "Your Account";
+
+    public static void Init(Context context)
+    {
+        Account mAccount;
+        mAccount = new Account(
+                ACCOUNT,
+                context.getResources().getString(R.string.account_type));
+
+        // Get an instance of the Android account manager
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(
+                        ACCOUNT_SERVICE);
+        /*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         */
+        Log.i(TAG,"CreateSyncAccount");
+        if (accountManager.addAccountExplicitly(mAccount, null, null)) {
+            /*
+             * If you don't set android:syncable="true" in
+             * in your <provider> element in the manifest,
+             * then call context.setIsSyncable(account, AUTHORITY, 1)
+             * here.
+             */
+            System.out.println("CreateSyncAccount/if");
+        } else {
+            System.out.println("CreateSyncAccount/else");
+        }
+
+        ContentResolver mResolver;
+        // Get the content resolver for your app
+        mResolver = context.getContentResolver();
+        // Turn on automatic syncing for the default account and authority
+        mResolver.setSyncAutomatically(mAccount,
+                context.getResources().getString(R.string.contentAuthority)
+                , true);
+        mResolver.setMasterSyncAutomatically(true);
+
+
+
+        // requestSync:
+        Bundle syncBundle = new Bundle();
+        mResolver.addPeriodicSync(
+            mAccount,
+            context.getResources().getString(R.string.contentAuthority),
+            syncBundle,
+                1L*60L*60L*1000L
+            );
+        mResolver.requestSync(mAccount,
+                context.getResources().getString(R.string.contentAuthority)
+                , syncBundle);
+    }
+    public static void SyncNOW(Context context)
+    {
+        Account mAccount;
+        // Create the account type and default account
+        mAccount = new Account(
+                ACCOUNT,
+                context.getResources().getString(R.string.account_type));
+
+        // Get an instance of the Android account manager
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(
+                        ACCOUNT_SERVICE);
+        /*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         */
+        Log.i(TAG,"CreateSyncAccount");
+        if (accountManager.addAccountExplicitly(mAccount, null, null)) {
+            /*
+             * If you don't set android:syncable="true" in
+             * in your <provider> element in the manifest,
+             * then call context.setIsSyncable(account, AUTHORITY, 1)
+             * here.
+             */
+            System.out.println("CreateSyncAccount/if");
+        } else {
+            System.out.println("CreateSyncAccount/else");
+        }
+
+        Bundle syncBundle = new Bundle();
+        ContentResolver.requestSync(mAccount,
+                context.getResources().getString(R.string.contentAuthority)
+                , syncBundle);
+    }
+
+
+
+    public static final String TAG="yoga1290";
+    // Storage for an instance of the sync adapter
+    private static AbstractThreadedSyncAdapter sSyncAdapter = null;
+    // Object to use as a thread-safe lock
+    private static final Object sSyncAdapterLock = new Object();
+    /*
+     * Instantiate the sync adapter object.
+     */
+    @Override
+    public void onCreate() {
+        Log.i(TAG, "SyncService.onCreate");
+        /*
+         * Create the sync adapter as a singleton.
+         * Set the sync adapter as syncable
+         * Disallow parallel syncs
+         */
+        synchronized (sSyncAdapterLock) {
+            if (sSyncAdapter == null) {
+
+                sSyncAdapter= new AbstractThreadedSyncAdapter(getApplicationContext(),true){
+
+                            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                            @Override
+                            public void onPerformSync(
+                                    Account account,
+                                    Bundle extras,
+                                    String authority,
+                                    ContentProviderClient provider,
+                                    SyncResult syncResult) {
+
+                                Log.i(TAG, "SyncAdapter.onPerformSync");
+
+                                //            ContentValues values=new ContentValues();
+                                //            values.put(NewsContentProvider.Contract.FIELD_ID, 1);
+                                //            values.put(NewsContentProvider.Contract.FIELD_NAME, "post data from sync");
+                                //            try {
+                                //                provider.insert(PostsContract.CONTENT_URI, values);
+                                //            } catch (RemoteException e) {
+                                //                // TODO Auto-generated catch block
+                                //                e.printStackTrace();
+                                //            }
+
+                                try {
+                                    /*
+                                    JSONArray feed=facebookPageUtil.getFeed().getJSONArray("data");
+                                    JSONObject cur;
+                                    for(int i=0;i<feed.length();i++)
+                                    {
+                                        cur=feed.getJSONObject(i);
+                                        String message=cur.getString("message");
+
+
+                                        String time=cur.getString("created_time");
+
+                                        com.appspot.aldostourfans.aldostourfans.model.feed feedDB= new feed(getContentResolver());
+
+                                        // prevously stored?... skip all
+                                        if(feedDB.get_where_CREATEDAT(time).length>0) return;
+
+
+                                        feedDB.insert(time,"","");
+                                        //*/
+                            // /*
+                                        final Intent restartMainActivtyIntent = new Intent(getApplicationContext(),
+                                                MainActivity.class);
+                                        restartMainActivtyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+
+                                        RemoteViews remoteView=new RemoteViews(
+                                                getApplicationContext().getPackageName(),
+                                                R.layout.notification);
+                                        remoteView.setTextViewText(R.id.notification_textView,"Hello Notification");
+
+                                        Notification.Builder notificationBuilder = new Notification.Builder(getApplicationContext())
+                                                .setContentIntent(
+                                                        PendingIntent.getActivity(getApplicationContext(), 0, restartMainActivtyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+                                                )
+                                                .setContent(
+                                                    remoteView
+                                                )
+                                                .setSmallIcon(android.R.drawable.stat_sys_download_done)
+                                                .setAutoCancel(true);
+                                        NotificationManager mNotificationManager=(NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                        mNotificationManager.notify(12901, notificationBuilder.build());
+                                        //*/
+                                //    }
+
+
+
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+            }
+        }
+    }
+    /**
+     * Return an object that allows the system to invoke
+     * the sync adapter.
+     *
+     */
+    @Override
+    public IBinder onBind(Intent intent) {
+        /*
+         * Get the object that allows external processes
+         * to call onPerformSync(). The object is created
+         * in the base class code when the SyncAdapter
+         * constructors call super()
+         */
+        Log.i(TAG, "SyncService.onBind");
+
+        return sSyncAdapter.getSyncAdapterBinder();
+    }
+
+}
+</script>
+<script type="text/template" id="manifest">
+<!-- <application > -->
+<provider
+            android:name="{{authority}}.ContentProvider"
+            android:authorities="{{authority}}"
+            android:label="@string/provider_label"
+            android:enabled="true"
+            android:syncable="true"
+            android:exported="false" >
+        </provider>
+        <!-- This service implements our SyncAdapter. It needs to be exported, so that the system
+		        sync framework can access it. -->
+        <service android:name="{{authority}}.SyncService"
+            android:exported="true"
+            android:process=":sync">
+            <!-- This intent filter is required. It allows the system to launch our sync service
+            as needed. -->
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <!-- This points to a required XML file which describes our SyncAdapter. -->
+            <meta-data android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
+        <!-- This implements the account we'll use as an attachment point for our SyncAdapter. Since
+		        our SyncAdapter doesn't need to authenticate the current user (it just fetches a public RSS
+		        feed), this account's implementation is largely empty.
+
+		        It's also possible to attach a SyncAdapter to an existing account provided by another
+		        package. In that case, this element could be omitted here. -->
+        <service android:name="{{authority}}.AuthenticatorService">
+            <!-- Required filter used by the system to launch our account service. -->
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <!-- This points to an XMLf ile which describes our account service. -->
+            <meta-data android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+<!-- </application> -->
+</script>
+
+<script type="text/template" id="jade">
+h1 SyncAdapter + ContentProvider + SQLite:
+p
+	| Press enter/return for a new field
+
+.container-fluid(ng-app="app",ng-controller="objCtrl")
+	.col-xs-12.col-md-3(align="center")
+		.panel.panel-default.col-xs-12
+			.panel-body
+				input.form-control.col-xs-12(type="text",placeholder="Authority",ng-model="authority")
+				input.form-control.col-xs-12(type="text",placeholder="Account Type",ng-model="account_type")
+				input.form-control.col-xs-12(type="text",placeholder="Database Name",ng-model="databaseName")
+
+	.col-md-9.col-xs-12
+		.panel.panel-default.col-xs-12.col-md-3(ng-repeat="table in tables")
+			.panel-heading
+				.col-md-3.col-xs-5
+					h1
+						span.glyphicon.glyphicon-list-alt
+				.col-md-8.col-xs-7
+					input.form-control(type="text",ng-keypress="onTableKeyPress($event)",ng-model="table.name",placeholder="Object Class name")
+
+			.panel-body
+				.input-group.col-xs-12(ng-repeat="field in table.fields")
+					input.form-control(type="text",placeholder="Field name",ng-model="field.name",ng-keypress="onFieldKeyPress($event,table)")
+					.input-group-btn
+						button.btn.btn-default.dropdown-toggle(data-toggle="dropdown")
+							| {{field.type}}
+							span.caret
+						ul.dropdown-menu
+							li
+								a(href="#",ng-click="field.type='TEXT';")
+									| TEXT
+							li
+								a(href="#",ng-click="field.type='INTEGER';")
+									| INTEGER
+							li
+								a(href="#",ng-click="field.type='REAL';")
+									| REAL
+							li
+								a(href="#",ng-click="field.isNotNull=!field.isNotNull;")
+									input(type="checkbox",value="NN",ng-model="field.isNotNull")
+									| Not Null
+							li
+								a(href="#",ng-click="field.isPrimaryKey=!field.isPrimaryKey;")
+									input(type="checkbox",value="PK",ng-model="field.isPrimaryKey")
+									| Primary Key
+							li
+								a(href="#",ng-click="field.isAutoincrement=!field.isAutoincrement;")
+									input(type="checkbox",value="AI",ng-model="field.isAutoincrement")
+									| Auto Increment
+							li
+								a(href="#",ng-click="removeField(table,$index)")
+									| Remove
+	.col-xs-12
+		ul.nav.nav-tabs.col-xs-12
+			li(ng-class="{active:selectedTab==-5}")
+				a(href="#",ng-click="selectedTab=-5")
+					h4
+						span.glyphicon.glyphicon-file
+						| res/values/strings.xml
+			li(ng-class="{active:selectedTab==-4}")
+				a(href="#",ng-click="selectedTab=-4")
+					h4
+						span.glyphicon.glyphicon-file
+						| @xml/authenticator
+			li(ng-class="{active:selectedTab==-3}")
+				a(href="#",ng-click="selectedTab=-3")
+					h4
+						span.glyphicon.glyphicon-file
+						| @xml/syncadapter
+			li(ng-class="{active:selectedTab==-2}")
+				a(href="#",ng-click="selectedTab=-2")
+					h4
+						span.glyphicon.glyphicon-file
+						| AndroidManifest.xml
+			li(ng-class="{active:selectedTab==-1}")
+				a(href="#",ng-click="selectedTab=-1")
+					h4
+						span.glyphicon.glyphicon-file
+						| {{authority}}.ContentProvider
+			li(ng-repeat="table in tables",ng-class="{active:$index==selectedTab }")
+				a(href="#",ng-click="setSelectedTab($index);")
+					h4
+						span.glyphicon.glyphicon-file
+						| {{authority}}.{{table.name}}
+		.col-xs-12
+			.panel-panel-default.col-xs-12
+				.panel-body
+					textarea.form-control(rows="40",ng-show="selectedTab==-5")
+						| #{templates.Strings}
+					textarea.form-control(rows="40",ng-show="selectedTab==-4")
+						| #{templates.AccountAuthenticator}
+					textarea.form-control(rows="40",ng-show="selectedTab==-3")
+						| #{templates.SyncAdapter}
+					textarea.form-control(rows="40",ng-show="selectedTab==-2")
+						| #{templates.manifest}
+					textarea.form-control(rows="40",ng-show="selectedTab==-1")
+						| #{templates.ContentProvider}
+					textarea.form-control(rows="40",ng-repeat="table in tables",ng-show="$index==selectedTab")
+						| #{templates.Repository}
+
+</script>
+
+	<script type="text/template" id="angular">
+	angular.module('app',[]);
+
+	angular
+		.module('app')
+			.controller('objCtrl',function($scope){
+				var sp=$scope;
+				sp.selectedTab=-1;
+				sp.databaseName='';
+				sp.authority='';
+				sp.account_type='';
+				sp.tables=[
+							{
+								name:'',
+								fields:[
+									{
+										name:'',
+										type:'TEXT',
+										isPrimaryKey:false,
+										isAutoincrement:false,
+										isNotNull:false
+									}
+								]
+							}
+						];
+				sp.setSelectedTab=function(index){
+					sp.selectedTab=index;
+				};
+				sp.onFieldKeyPress=function(e,table){
+					if(e.keyCode==13)
+					{
+						table.fields.push({
+										name:'',
+										type:'TEXT',
+										isPrimaryKey:false,
+										isAutoincrement:false,
+										isNotNull:false
+									});
+						
+						setTimeout(function(){
+							$('input[type=text]').last().focus();
+					},50);
+					}
+				};
+				sp.onTableKeyPress=function(e){
+					if(e.keyCode==13)
+					{
+						$scope.tables.push({
+										name:'',
+										fields:[
+											{
+												name:'',
+												type:'TEXT',
+												isPrimaryKey:false,
+												isAutoincrement:false,
+												isNotNull:false
+											}
+										]
+									});
+						$('input[type=text]').last().focus();
+					}
+				};
+				sp.removeField=function(table,index){
+					var nFields=[];
+					for(var i=0;i<table.fields.length;i++)
+						if(i!=index)
+							nFields.push(table.fields[i]);
+					table.fields=nFields;
+				};
+				sp.getContactField=function(table){
+					var txt='';
+					// first element in the PROJECTION will be the Id
+					for(var i=0;i<table.fields.length;i++)
+						txt+='\t\t'+table.fields[i].name.toUpperCase()+'='+(i+1)+',\n';
+					return txt;
+				};
+				sp.getCreateSQL=function(table){
+					//TODO
+					var txt='CREATE TABLE '+table.name+' ( Id INTEGER PRIMARY KEY autoincrement,';
+					var f='';
+					for(var i=0;i<table.fields.length;i++)
+						f+=','+table.fields[i].name+' '+table.fields[i].type
+								+(table.fields[i].isPrimaryKey ? 'PRIMARY KEY ':'')
+								+(table.fields[i].isAutoincrement ? 'autoincrement ':'')
+								+(table.fields[i].isNotNull ? 'NOT NULL ':'');
+					txt+=f.substring(1,f.length);
+					return txt+');';
+				};
+				sp.getAllDropSQL=function(tables){
+					var txt='';
+					for(var i=0;i<tables.length;i++)
+						txt+='\t\tsqLiteDatabase.execSQL('+tables[i].name+'.SQL_DROP);\n';
+					return txt;
+				};
+				sp.getAllCreateSQL=function(tables){
+					var txt='';
+					for(var i=0;i<tables.length;i++)
+						txt+='\t\tsqLiteDatabase.execSQL('+tables[i].name+'.SQL_CREATE);\n';
+					return txt;
+				};
+				sp.getINSERTstatment=function(table){
+					var i=0;
+					
+					var parameters='';
+					var cv_put='';
+					for(i=0;i<table.fields.length;i++)
+					{
+						if(table.fields[i].type=='TEXT')
+							parameters+=',String '+table.fields[i].name;
+						else if(table.fields[i].type=='INTEGER')
+							parameters+=',int '+table.fields[i].name;
+						else if(table.fields[i].type=='REAL')
+							parameters+=',double '+table.fields[i].name;
+
+						cv_put+='\t\tcv.put("'+table.fields[i].name+'",'+table.fields[i].name+');\n';
+					}
+					parameters=parameters.substring(1,parameters.length);
+
+					return	(
+						'\tpublic String insert('+parameters+') {\n'+
+						'\t\tContentValues cv=new ContentValues();\n'+
+						cv_put+
+						'\t\tUri id=contentResolver.insert('+table.name+'URI,cv);\n'+
+						'\t\treturn id.getLastPathSegment();\n'+
+						'\t}\n');
+				};
+
+				sp.getPROJECTION=function(table){
+					var txt='';
+					for(var i=0;i<table.fields.length;i++)
+						txt+=',"'+table.fields[i].name+'"';
+					txt=txt.substring(1,txt.length);
+					return 'public static final String PROJECTION[]=new String[]{"Id",'+txt+'};';
+				};
+				sp.getGetters=function(table){
+					var txt='';
+					for(var i=0;i<table.fields.length;i++)
+					txt+='\tpublic String[][] get_where_'+table.fields[i].name.toUpperCase()+'(String '+table.fields[i].name+'){\n'+
+						'\treturn cursor2Array(contentResolver.query(\n'+
+						'\t\t'+table.name+'URI,\n'+
+						'\t\tPROJECTION,\n'+
+						'\t\t"'+table.fields[i].name+' =?",\n'+
+						'\t\tnew String[]{'+table.fields[i].name+'}\n'+
+						'\t\t,null));\n'+
+						'\t}\n';
+					return txt;
+				};
+				sp.getDELETEStatments=function(table){
+					var txt='';
+					for(var i=0;i<table.fields.length;i++)
+					txt+='\tpublic int delete_where_'+table.fields[i].name.toUpperCase()+'(String '+table.fields[i].name+'){\n'+
+						'\treturn contentResolver.delete(\n'+
+						'\t\t'+table.name+'URI,\n'+
+						'\t\t"'+table.fields[i].name+' =?",\n'+
+						'\t\tnew String[]{'+table.fields[i].name+'});\n'+
+						'\t}\n';
+					return txt;
+				};
+			});
+
+	</script>
+
+
+	<script>
+		$(function(){
+
+			var div=$('<div>');
+
+			div.html(
+				jade.render(
+					$('#jade').html(),
+					{
+						pretty:'\t',
+						templates:{
+							Strings: 				$('script#Strings').html(),
+							AccountAuthenticator: 	$('script#AccountAuthenticator').html(),
+							SyncAdapter: 			$('script#SyncAdapter').html(),
+							Repository: 			$('script#Repository').html(),
+							ContentProvider: 		$('script#ContentProvider').html(),
+							SyncService: 			$('script#SyncService').html(),
+							manifest: 				$('script#manifest').html()
+						}
+					}
+				)
+				);
+
+			
+			$('<script>')
+				.attr('src','/js/angular.js')
+				.appendTo(div);
+			$('<script>')
+				.html($('#angular').html())
+				.appendTo(div);
+
+			div.appendTo('body');
+		});
+	</script>
+  </body>
+</html>

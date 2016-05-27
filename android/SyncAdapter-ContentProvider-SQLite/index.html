@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script type="text/javascript" src="../../js/jade.js"></script></head>	
+<body>
+<script type="text/template" id="jade">
+html
+	head
+		meta(charset="utf-8")
+		meta(http-equiv="X-UA-Compatible", content="IE=edge")
+		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1")
+		title SyncAdapter + ContentProvider + SQLite
+		script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
+		script(src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js")
+		script(src="../../js/angular.js")
+		script(src="../../js/Base64.js")
+		link(rel="stylesheet", href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css")
+		link(rel="stylesheet", href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
+	body
+		h1 SyncAdapter + ContentProvider + SQLite:
+		p
+			| Press enter/return for a new field
+
+		.container-fluid(ng-app="app",ng-controller="objCtrl")
+			.col-xs-12.col-md-3(align="center")
+				.panel.panel-default.col-xs-12
+					.panel-body
+						input.form-control.col-xs-12(type="text",placeholder="Authority",ng-model="authority")
+						input.form-control.col-xs-12(type="text",placeholder="Account Type",ng-model="account_type")
+						input.form-control.col-xs-12(type="text",placeholder="Database Name",ng-model="databaseName")
+
+			.col-md-9.col-xs-12
+				.panel.panel-default.col-xs-12.col-md-3(ng-repeat="table in tables")
+					.panel-heading
+						.col-md-3.col-xs-5
+							h1
+								span.glyphicon.glyphicon-list-alt
+						.col-md-8.col-xs-7
+							input.form-control(type="text",ng-keypress="onTableKeyPress($event)",ng-model="table.name",placeholder="Object Class name")
+
+					.panel-body
+						.input-group.col-xs-12(ng-repeat="field in table.fields")
+							input.form-control(type="text",placeholder="Field name",ng-model="field.name",ng-keypress="onFieldKeyPress($event,table)")
+							.input-group-btn
+								button.btn.btn-default.dropdown-toggle(data-toggle="dropdown")
+									| {{field.type}}
+									span.caret
+								ul.dropdown-menu
+									li
+										a(href="#",ng-click="field.type='TEXT';")
+											| TEXT
+									li
+										a(href="#",ng-click="field.type='INTEGER';")
+											| INTEGER
+									li
+										a(href="#",ng-click="field.type='REAL';")
+											| REAL
+									li
+										a(href="#",ng-click="field.isNotNull=!field.isNotNull;")
+											input(type="checkbox",value="NN",ng-model="field.isNotNull")
+											| Not Null
+									li
+										a(href="#",ng-click="field.isPrimaryKey=!field.isPrimaryKey;")
+											input(type="checkbox",value="PK",ng-model="field.isPrimaryKey")
+											| Primary Key
+									li
+										a(href="#",ng-click="field.isAutoincrement=!field.isAutoincrement;")
+											input(type="checkbox",value="AI",ng-model="field.isAutoincrement")
+											| Auto Increment
+									li
+										a(href="#",ng-click="removeField(table,$index)")
+											| Remove
+			.col-xs-12
+				ul.nav.nav-tabs.col-xs-12
+					li(ng-class="{active:selectedTab==-6}")
+						a(href="#",ng-click="selectedTab=-6")
+							h4
+								span.glyphicon.glyphicon-file
+								| res/values/strings.xml
+					li(ng-class="{active:selectedTab==-5}")
+						a(href="#",ng-click="selectedTab=-5")
+							h4
+								span.glyphicon.glyphicon-file
+								| @xml/authenticator
+					li(ng-class="{active:selectedTab==-4}")
+						a(href="#",ng-click="selectedTab=-4")
+							h4
+								span.glyphicon.glyphicon-file
+								| @xml/syncadapter
+					li(ng-class="{active:selectedTab==-3}")
+						a(href="#",ng-click="selectedTab=-3")
+							h4
+								span.glyphicon.glyphicon-file
+								| SyncService
+					li(ng-class="{active:selectedTab==-2}")
+						a(href="#",ng-click="selectedTab=-2")
+							h4
+								span.glyphicon.glyphicon-file
+								| AndroidManifest.xml
+					li(ng-class="{active:selectedTab==-1}")
+						a(href="#",ng-click="selectedTab=-1")
+							h4
+								span.glyphicon.glyphicon-file
+								| {{authority}}.ContentProvider
+					li(ng-repeat="table in tables",ng-class="{active:$index==selectedTab }")
+						a(href="#",ng-click="setSelectedTab($index);")
+							h4
+								span.glyphicon.glyphicon-file
+								| {{authority}}.{{table.name}}
+				.col-xs-12
+					.panel-panel-default.col-xs-12
+						.panel-body
+							div(ng-show="selectedTab==-6",ng-include="'Strings.html'")
+							div(ng-show="selectedTab==-5",ng-include="'AccountAuthenticator.html'")
+							div(ng-show="selectedTab==-4",ng-include="'SyncAdapter.html'")
+							div(rows="40",ng-show="selectedTab==-3",ng-include="'SyncService.html'")
+							div(ng-show="selectedTab==-2",ng-include="'manifest.html'")
+							div(ng-show="selectedTab==-1",ng-include="'ContentProvider.html'")
+							div(ng-repeat="table in tables",ng-show="$index==selectedTab",ng-include="'Repository.html'")
+		script(src="app.js")
+
+</script>
+<script type="text/javascript">
+	window.onload=function(){
+		document.write(
+				jade.render(
+					document.getElementById('jade').innerHTML,
+					{
+						pretty:'\t',
+						templates:{}
+					}
+				)
+			);
+		document.close();
+	};
+</script>
+  </body>
+</html>

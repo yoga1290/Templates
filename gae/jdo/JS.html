@@ -1,0 +1,85 @@
+<textarea width="100%" class="form-control" rows="46">
+var {{Capitalise(obj.name)}}Svc={
+		all:function(success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/all',
+				type:'GET',
+				success:success
+			});
+		},
+		findById:function({{getPrimaryKeysFieldName(obj)}},success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/id/'+{{getPrimaryKeysFieldName(obj)}},
+				type:'GET',
+				success:success
+			});
+		},
+		insert:function({{getJSSvc_insertAll_param(obj)}},success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/insert',
+				type:'POST',
+				//TODO
+				//data:{{getJSSvc_update_data(obj)}},
+				success:success
+			});
+		},
+		insertForm:function(formObj,success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/insert',
+				type:'POST',
+				data:$(formObj).serialize(),
+				success:success
+			});
+		},
+		insertAll:function({{getJSSvc_insertAll_param(obj)}},success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/insertAll',
+				type:'POST',
+				data:{{getJSSvc_insertAll_data(obj)}},
+				success:success
+			});
+		},
+		update:function(id,{{getJSSvc_update_param(obj)}},success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/update/'+id,
+				type:'POST',
+				data:{{getJSSvc_update_data(obj)}},
+				success:success
+			});
+		},
+		updateForm:function(id,formObj,success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/update/'+id,
+				type:'POST',
+				data:$(formObj).serialize(),
+				success:success
+			});
+		},
+		updateAll:function({{getJSSvc_updateAll_param(obj)}},success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/updateAll',
+				type:'POST',
+				data:{{getJSSvc_updateAll_data(obj)}},
+				success:success
+			});
+		},
+		deleteAll:function({{getPrimaryKeysFieldName(obj)}},success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/deleteAll',
+				type:'POST',
+				data:'{{getPrimaryKeysFieldName(obj)}}='
+						+JSON.stringify({{getPrimaryKeysFieldName(obj)}}),
+				success:success
+			});
+		},
+		delete:function({{getPrimaryKeysFieldName(obj)}},success){
+			return $.ajax({
+				url:'/{{lower(obj.name)}}/delete',
+				type:'POST',
+				data:'{{getPrimaryKeysFieldName(obj)}}='
+						+{{getPrimaryKeysFieldName(obj)}},
+				success:success
+			});
+		}
+	};
+</textarea>

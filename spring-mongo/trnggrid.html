@@ -1,0 +1,23 @@
+<textarea width="100%" class="form-control" rows="46">
+    <div ng-cnotroller="{{Capitalise(obj.name)}}TrNgGridCtrl">
+      <table class="table" tr-ng-grid="" 
+        total-items="totalItems"
+        page-items="pageItems"
+        items="items" 
+        ng-click="onSelectedChange()" 
+        selected-items="selected" 
+        selection-mode="SingleRow"
+        enable-filtering="false"
+        on-data-required="query(currentPage, pageItems, filterBy, filterByFields, orderBy, orderByReverse, caseRecord.id)">
+        <thead>
+        <tr>
+            {{$('.trnggrid.th')}}
+        </tr>
+        </thead>
+      </table>
+    </div>
+</textarea>
+
+<div class="trnggrid th" ng-repeat="field in obj.fields" ng-hide="true">
+            <th field-name="{{field.name}}" display-name="{{field.name}}" enable-filtering="true">
+</div>

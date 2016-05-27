@@ -1,0 +1,165 @@
+<textarea class="form-control" rows="40">
+package {{authority}};
+
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class {{Capitalise(table.name)}}
+{
+    private ContentResolver contentResolver;
+    public static final String
+            TABLE_NAME="{{table.name}}",
+            DATABASE_NAME="TODO";
+    public static final String SQL_CREATE="CREATE TABLE {{table.name}} ( id INTEGER PRIMARY KEY, poster_path TEXT,overview TEXT,release_date TEXT,genre_ids TEXT,original_title TEXT,original_language TEXT,title TEXT,backdrop_path TEXT,popularity REAL,vote_average REAL,vote_count INTEGER,is_favorite INTEGER);";
+    public static final String SQL_DROP="DROP TABLE IF EXISTS {{table.name}}";
+
+    public static final String PROJECTION[]=new String[]{"id"
+            ,"poster_path"
+            ,"overview"
+            ,"release_date"
+            ,"genre_ids"
+            ,"original_title"
+            ,"original_language"
+            ,"title"
+            ,"backdrop_path"
+            ,"popularity"
+            ,"vote_average"
+            ,"vote_count"
+            ,"is_favorite"};
+
+    public static final String AUTHORITY = "{{authority}}";
+    //TODO:getApplicationContext().getResources().getString(R.string.contentAuthority)?
+
+    public static final Uri {{Capitalise(field.name)}}URI=Uri.parse("content://"+AUTHORITY+"/"+TABLE_NAME);
+
+
+    private String poster_path;
+    private String overview;
+    private String id;
+    private String release_date;
+    private String genre_ids;
+    private String original_title;
+    private String original_language;
+    private String title;
+    private String backdrop_path;
+    private int vote_count;
+    private double popularity;
+    private double vote_average;
+    private boolean isFavorite;
+
+    private String jsonString;
+    public {{Capitalise(table.name)}}(ContentResolver contentResolver)
+    {
+        this.contentResolver=contentResolver;
+    }
+    public {{Capitalise(table.name)}}(JSONObject json) throws JSONException
+    {
+        this.id = json.getString("id");
+
+        this.poster_path = json.getString("poster_path");
+        this.vote_count = json.getInt("vote_count");
+        this.popularity = json.getDouble("popularity");
+        this.vote_average = json.getDouble("vote_average");
+        this.isFavorite = false;
+
+        this.jsonString = json.toString();
+    }
+    public {{Capitalise(table.name)}}(){
+    }
+    public static {{Capitalise(table.name)}}[] getFromCursor(Cursor c) {
+        if(c==null) return new {{Capitalise(table.name)}}[]{};
+        {{Capitalise(table.name)}} result[] = new {{Capitalise(table.name)}}[c.getCount()];
+        for(int i=0;i<c.getCount();i++) {
+            c.moveToNext();
+            result[i] = new {{table.name}}();
+
+            result[i].id = c.getString(0);
+            {{$('.Repository.JSONGetter')}}
+        }
+        return result;
+    }
+
+    public static {{Capitalise(field.name)}}[] getAll(ContentResolver contentResolver) {
+        return getFromCursor(contentResolver.query(
+                {{Capitalise(field.name)}}URI,
+                PROJECTION,null,null
+                , null));
+    }
+    public static {{Capitalise(field.name)}}[] getAllOrderBy(ContentResolver contentResolver, String orderBy) {
+        return getFromCursor(contentResolver.query(
+                MovieURI,
+                PROJECTION,null,null
+                , orderBy));
+    }
+
+    {{$('.Repository.getters')}}
+    
+    public String save(ContentResolver contentResolver) {
+        ContentValues cv=new ContentValues();
+
+        {{$('.Repository.CV')}}
+
+        Uri id=contentResolver.insert({{Capitalise(field.name)}}URI,cv);
+        return id.getLastPathSegment();
+    }
+
+}
+
+    {{$('.Repository.delete')}}
+}
+</textarea>
+
+<div ng-hide="true" ng-repeat="field in table.fields" class="Repository getters">
+    public static {{Capitalise(field.name)}}[] findById(ContentResolver contentResolver, String {{field.name}}) {
+        return getFromCursor(contentResolver.query(
+                {{Capitalise(field.name)}}URI,
+                PROJECTION,
+                "{{field.name}} =?",
+                new String[]{ {{field.name}} }
+                , null));
+    }
+</div>
+
+
+<div ng-hide="true" ng-repeat="field in table.fields" class="Repository CV">
+            cv.put("{{field.name}}", {{field.name}} );
+</div>
+<div ng-hide="true" ng-repeat="field in table.fields track by $index" class="Repository JSONGetter">
+            result[i].{{field.name}} = c.getString($index);
+</div>
+<div ng-hide="true" ng-repeat="field in table.fields track by $index" class="Repository parameters" ng-if="$index>0 && field.type=='TEXT'">
+, String {{field.name}}</div>
+<div ng-hide="true" ng-repeat="field in table.fields track by $index" class="Repository parameters" ng-if="$index>0 && field.type=='INTEGER'">
+, int {{field.name}}</div>
+<div ng-hide="true" ng-repeat="field in table.fields track by $index" class="Repository parameters" ng-if="$index>0 && field.type=='REAL'">
+, double {{field.name}}</div>
+<div ng-hide="true" ng-repeat="field in table.fields track by $index" class="Repository parameters" ng-if="$index==0 && field.type=='TEXT'">
+String {{field.name}}</div>
+<div ng-hide="true" ng-repeat="field in table.fields track by $index" class="Repository parameters" ng-if="$index==0 && field.type=='INTEGER'">
+int {{field.name}}</div>
+<div ng-hide="true" ng-repeat="field in table.fields track by $index" class="Repository parameters" ng-if="$index==0 && field.type=='REAL'">
+double {{field.name}}</div>
+
+
+<div class="Repository delete" ng-hide="true" ng-repeat="field in table.fields">
+public int deleteBy{{Capitalise(field.name)}}(String {{field.name}}) {
+
+	return contentResolver.delete(
+		{{table.name}}URI,
+		"{{field.name}} =?",
+		new String[]{ {{field.name}} });
+}
+</div>
+
+
+<div class="Repository projection parameters" ng-hide="true" ng-repeat="field in table.fields">
+,"{{field.name}}"</div>
+
+
+<div class="Repository contact" ng-hide="true" ng-repeat="field in table.fields track by $index">
+		{{field.name.toUpperCase() + ' = ' + ($index+1) }},
+</div>

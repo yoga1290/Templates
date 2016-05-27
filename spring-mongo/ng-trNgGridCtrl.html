@@ -1,0 +1,51 @@
+<textarea width="100%" class="form-control" rows="46">
+app.controller('{{Capitalise(obj.name)}}TrNgGridCtrl', ['$scope', '{{Capitalise(obj.name)}}Svc', function($scope, {{Capitalise(obj.name)}}Svc) {
+	$scope.totalItems = 0;
+	$scope.pageItems = 5;
+	$scope.items = [];
+	$scope.selected = [];
+
+	$scope.onSelectedChange = function() {
+
+	};
+	$scope.query = function(currentPage, pageItems, filterBy, filterByFields, orderBy, orderByReverse, caseId) {
+		var isGlobal = false;
+		if(filterBy!==null && filterBy!==undefined && filterBy.length>0)
+			isGlobal=true;
+		var searchObj = {
+			currentPage:currentPage,
+			pageItems:pageItems,
+			orderBy:orderBy
+		};
+		if(isGlobal)
+			searchObj.filterByFields = {
+                {{$('.ngTrNgGridCtrl.isGlobal')}}
+			};
+		else
+			searchObj.filterByFields = {
+				{{$('.ngTrNgGridCtrl.filterByFields')}}
+			};
+		//TODO: searchObj.mandatoryFilters = {};
+		{{Capitalise(obj.name)}}Svc.query(searchObj,orderByReverse,isGlobal).success(function(response) {
+			$scope.totalItems = response.total;
+			$scope.items = response.data;
+			if($scope.items.length>0)
+			{
+				$scope.selected=[$scope.items[0]];
+				// TODO: do something b4 rendering?
+				$scope.onSelectedChange();
+			}
+		});
+	};
+}]);
+</textarea>
+
+<div class="ngTrNgGridCtrl isGlobal" ng-hide="true" ng-repeat="field in obj.fields track by $index" ng-if="$index>0">
+                {{field.name}}: filterBy,</div>
+<div class="ngTrNgGridCtrl isGlobal" ng-hide="true" ng-repeat="field in obj.fields track by $index" ng-if="$index==obj.fields.length-1">
+                {{field.name}}: filterBy</div>
+
+<div class="ngTrNgGridCtrl filterByFields" ng-hide="true" ng-repeat="field in obj.fields track by $index" ng-if="$index>0">
+                {{field.name}}: filterByFields['{{field.name}}'],</div>
+<div class="ngTrNgGridCtrl filterByFields" ng-hide="true" ng-repeat="field in obj.fields track by $index" ng-if="$index==obj.fields.length-1">
+                {{field.name}}: filterByFields['{{field.name}}']</div>

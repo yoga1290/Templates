@@ -1,0 +1,71 @@
+<textarea width="100%" class="form-control" rows="46">
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Date;
+
+
+public class BasicRecord {
+    
+    @JsonInclude
+    private String creatorId;
+    
+    @JsonInclude
+    private long creationTime;
+    
+    @JsonInclude
+    private long modificationTime;
+    
+    @JsonInclude
+    private boolean isDeleted;
+    
+    @JsonInclude
+    private boolean isArchived;
+
+
+    public BasicRecord() {
+        this.modificationTime = this.creationTime = new Date().getTime();
+        this.isDeleted = false;
+        this.isArchived = false;
+    }
+
+    public boolean isIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public String getCreatorId() {
+        return creatorId;
+    }
+
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    public long getModificationTime() {
+        return modificationTime;
+    }
+
+    public boolean isIsArchived() {
+        return isArchived;
+    }
+
+    public void setCreatorId(String creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public void setCreationTime(long creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public void setModificationTime(long modificationTime) {
+        this.modificationTime = modificationTime;
+    }
+
+    public void setIsArchived(boolean isArchived) {
+        this.isArchived = isArchived;
+    }
+   
+}
+</textarea>

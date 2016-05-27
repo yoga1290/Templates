@@ -1,0 +1,63 @@
+<textarea width="100%" class="form-control" rows="46">
+angular
+    .module('app')
+        .service('{{Capitalise(obj.name)}}Svc', ['$http', '$q', function($http, $q) {
+            {{$('.ngSvc.functions')}}
+
+            this.save = function({{obj.name}}) {
+                return $http.post('/{{lower(obj.name)}}/save', {{obj.name}});
+            };
+
+            this.query = function(searchObj,isASC,isGlobal) {
+                if(searchObj.mandatoryFilters===undefined) {
+                    searchObj.mandatoryFilters={};
+                }
+                
+                var chain=
+                        $http
+                            .post('/{{lower(obj.name)}}/trNgGrid',searchObj,{params:{isASC:isASC,isGlobal:isGlobal}});
+                return chain;
+            };
+        }]);
+</textarea>
+
+<div class="ngSvc functions" ng-hide="true" ng-repeat="field in obj.fields">
+			var _findBy{{Capitalise(field.name)}} = {};
+            this.findBy{{Capitalise(field.name)}} = function({{field.name}}) {
+				if(_findBy{{Capitalise(field.name)}}[{{field.name}}] !== undefined)
+					return _findBy{{Capitalise(field.name)}}[{{field.name}}];
+                var canceller = $q.defer();
+                var chain=
+                    $http.get('/{{lower(obj.name)}}/findBy{{Capitalise(field.name)}}',
+                        {	timeout:canceller.promise,
+                        	params:{
+                        		"{{field.name}}":{{field.name}}
+                        	}
+                        });
+                chain.abort=function(){
+						_findBy{{Capitalise(field.name)}}[{{field.name}}] = undefined;
+                        canceller.resolve();
+                    };
+				chain.error(function(){
+					_findBy{{Capitalise(field.name)}}[{{field.name}}] = undefined;
+				});
+				// TODO: no caching? comment the line below:
+				_findBy{{Capitalise(field.name)}}[{{field.name}}] = chain;
+                return chain;
+            };
+</div>
+<div class="ngSvc functions" ng-hide="true" ng-repeat="field in obj.fields" ng-if="field.type=='long'">
+            this.findByTop{{Capitalise(field.name)}} = function(offset,limit) {
+                var canceller = $q.defer();
+                var chain=
+                    $http.get('/{{lower(obj.name)}}/findByTop{{Capitalise(field.name)}}',
+                        {params:
+							{ 'offset':offset, 'limit':limit },
+                        timeout:canceller.promise
+						});
+                chain.abort=function(){
+                        canceller.resolve();
+                    };
+                return chain;
+            };
+</div>

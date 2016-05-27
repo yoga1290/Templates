@@ -1,0 +1,24 @@
+<textarea width="100%" class="form-control" rows="46">
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+
+public interface {{Capitalise(obj.name)}}Repository {
+        {{$('.RepositoryInterface.finders')}}
+
+       public JSONObject trNgGrid(trNgGridDTO q, Criteria mandatoryFields, boolean isASC, boolean isGlobal);
+}
+
+</textarea>
+
+<div ng-repeat="field in obj.fields" ng-hide="true" class="RepositoryInterface finders">
+    public List<{{Capitalise(obj.name)}}> findBy{{Capitalise(field.name)}}({{field.type}} {{field.name}}, int offset, int limit);
+</div>
+<div ng-repeat="field in obj.fields" ng-hide="true" class="RepositoryInterface finders" ng-if="field.type=='long'">
+    public List<{{Capitalise(obj.name)}}> findByTop{{Capitalise(field.name)}}(int offset, int limit);
+</div>
