@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.json.simple.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +14,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 
-public class BasicDaoImpl<T extends BasicRecord> {
+public class BasicRecordRepository<T extends BasicRecord> {
     @Autowired
     @Qualifier(value = "mongoTemplate")
     MongoOperations mongoOperation;
@@ -38,23 +37,23 @@ public class BasicDaoImpl<T extends BasicRecord> {
     
     public List<T> find(Query query) {
         query.addCriteria(Criteria.where("isDeleted").is(false));
-        return mongoOperation.find(query, type_);
+        return mongoOperation.find(query, type_, _type.getSimpleName());
     }
 
     public List<T> find(Query query, int offset, int limit) {
         query.addCriteria(Criteria.where("isDeleted").is(false));
         query.skip(offset).limit(limit);
-        return mongoOperation.find(query, type_);
+        return mongoOperation.find(query, type_, _type.getSimpleName());
     }
     
     public T findOne(Query query) {
         query.addCriteria(Criteria.where("isDeleted").is(false));
-        return mongoOperation.findOne(query, type_);
+        return mongoOperation.findOne(query, type_, _type.getSimpleName());
     }
 
     public long count(Query query) {
         query.addCriteria(Criteria.where("isDeleted").is(false));
-        return mongoOperation.count(query, type_);
+        return mongoOperation.count(query, type_, _type.getSimpleName());
     }
     
     public void findAndRemove(Query query) {
@@ -106,18 +105,16 @@ public class BasicDaoImpl<T extends BasicRecord> {
         
         if(q.getOrderBy()!=null)
             query.with(new Sort(isASC ? Sort.Direction.ASC:Sort.Direction.DESC, q.getOrderBy()));
-        long total = mongoOperation.count(query, type_);
+        long total = mongoOperation.count(query, type_, _type.getSimpleName());
         if(q.getCurrentPage()*q.getPageItems()<total)
             query.skip(q.getCurrentPage()*q.getPageItems());
         query.limit(q.getPageItems());
         
-        List<T> data = (List<T>) mongoOperation.find(query, type_);
+        List<T> data = (List<T>) mongoOperation.find(query, type_, _type.getSimpleName());
         
-        JSONArray jsonData=new JSONArray();
-                  jsonData.addAll(data);
         return new JSONObject()
                     .put("total", total)
-                    .put("data", jsonData );
+                    .put("data", data );
     }
 }
 
