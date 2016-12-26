@@ -2,10 +2,22 @@
   "name": "LocalServer",
   "version": "1.0.0",
   "dependencies": {
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "babel-preset-react": "^6.5.0",
+    "babelify": "^7.3.0",
+    "react": "^15.0.2",
+    "react-dom": "^15.0.2"
+  },
+  "devDependencies": {
+    "browserify": "^13.1.1",
+    "react-jade": "^2.5.0",
+    "watchify": "^3.7.0"
   },
   "scripts": {
     "start": "node server.js",
+    "jade": "browserify index.js --transform react-jade > bundle.js",
+    "browserify": "browserify -t babelify main.js -o bundle.js",
+    "watchify": "watchify -t babelify main.js -o bundle.js -v",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yoga1290"
