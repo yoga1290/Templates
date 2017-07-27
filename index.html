@@ -1,87 +1,9 @@
 <html>
-	<head>
-		<meta charset="utf-8">
-		<script src="//cdnjs.cloudflare.com/ajax/libs/jade/1.3.1/jade.min.js"></script>
-	</head>
-	<body>
-<script type="jade" id="jade">
-html
-	head
-		meta(charset="utf-8")
-		meta(http-equiv="X-UA-Compatible",content="IE=edge")
-		meta(name="viewport",content="width=device-width, initial-scale=1, maximum-scale=1")
-		title yoga1290 templates
-		script(src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
-		link(rel="stylesheet",href="https://fonts.googleapis.com/icon?family=Material+Icons")
-		link(rel="stylesheet",href="//netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css")
-
-		script(src="//netdna.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js")
-		script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js")
-		
-	body(align="center")
-		ng-include(src="'page'")
-		.script(type="text/ng-template", id="page")
-			.container-fluid(ng-app="app",ng-controller="ctrl")
-				.col-xs-12
-					h1 Interactive Templates
-				.hidden-print.col-md-3.col-md-offset-1.col-xs-12(ng-repeat="template in templates")
-					.panel.panel-default(style="border-radius: 100px 4px 4px 5px;cursor: pointer;")
-						.panel-body(ng-click="open(template)")
-							i.col-xs-12.material-icons(style="font-size:100px") {{template.icon}}
-							.col-xs-12
-								h3 {{template.name}}
-							.col-xs-12
-								p {{template.description}}
-
-
-				.visible-print-block.col-md-3.col-md-offset-1.col-xs-12(ng-repeat="template in templates")
-					.panel.panel-default
-						.panel-body(ng-click="open(template)")
-							i.col-xs-12.material-icons(style="font-size:100px") {{template.icon}}
-							.col-xs-12
-								h3 {{template.name}}
-							.col-xs-12
-								p {{template.description}}
-
-		script.
-			angular.module('app',[]).controller('ctrl',function($scope){
-				$scope.templates = [{
-					name: 'SyncAdapter + SQLite/ContentProvider',
-					icon: 'android',
-					url: 'android/SyncAdapter-ContentProvider-SQLite/index.html',
-					readme: '',
-					description: ''
-				},{
-					name: 'Spring Mongo @Document',
-					icon: 'explore',
-					url: 'spring-mongo/index.html',
-					readme: '',
-					description: '@Document, Spring Controller & Repository based on a BasicRecord @Document & it`s Data-Access-Object'  
-				},{
-					name: 'Spring/JDO to ngSvc',
-					icon: 'explore',
-					url: 'gae/jdo/index.html',
-					readme: '',
-					description: 'Template for creating JDO based on Dr.White`s AppEngine Spring example, and AngularJS service' 
-				}];
-				$scope.open = function(template) {
-					location.href = template.url;
-				};
-			});
-</script>
-<script>
-window.onload=function(){
-
-		document.write(
-			jade.render(
-				document.getElementById('jade').innerHTML,
-				{pretty:'\t'}
-			)
-		);
-		//AngularJS DOES NOT WORK W/OUT THIS:
-		document.close();
-};
-</script>
-
-
-</body></html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
