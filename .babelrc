@@ -1,0 +1,4 @@
+{
+  "presets": ["es2015", "env"]
+}
+/* see https://vue-loader.vuejs.org/en/features/es2015.html#configuring-babel-with-babelrc */
