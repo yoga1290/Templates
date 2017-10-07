@@ -14,7 +14,6 @@ var config = {
   context: __dirname,
   // context: path.join(__dirname, 'vue'),
   output: {
-    path: __dirname,
     filename: path.join('[name].js')
   },
 
