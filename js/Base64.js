@@ -1,15 +1,15 @@
-var Base64 = {
+export default {
 
 // private property
 _keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
 
 // public method for encoding
-encode : function (input) {
+encode (input) {
     var output = "";
     var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
     var i = 0;
 
-    input = Base64._utf8_encode(input);
+    input = this._utf8_encode(input);
 
     while (i < input.length) {
 
@@ -38,7 +38,7 @@ encode : function (input) {
 },
 
 // public method for decoding
-decode : function (input) {
+decode (input) {
     var output = "";
     var chr1, chr2, chr3;
     var enc1, enc2, enc3, enc4;
@@ -68,14 +68,14 @@ decode : function (input) {
 
     }
 
-    output = Base64._utf8_decode(output);
+    output = this._utf8_decode(output);
 
     return output;
 
 },
 
 // private method for UTF-8 encoding
-_utf8_encode : function (string) {
+_utf8_encode (string) {
     string = string.replace(/\r\n/g,"\n");
     var utftext = "";
 
@@ -102,7 +102,7 @@ _utf8_encode : function (string) {
 },
 
 // private method for UTF-8 decoding
-_utf8_decode : function (utftext) {
+_utf8_decode (utftext) {
     var string = "";
     var i = 0;
     var c = c1 = c2 = 0;
@@ -133,8 +133,8 @@ _utf8_decode : function (utftext) {
 },
 
 
-downloadText:function(Text){
-    location.href="data:application/txt;charset=utf-8;base64,"+Base64.encode(Text);
+downloadText (Text) {
+    window.location.href="data:application/txt;charset=utf-8;base64,"+this.encode(Text);
 }
 
 };

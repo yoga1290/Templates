@@ -48,15 +48,18 @@ html
 							.panel-body(v-if="selectedTab===-1")
 								button.btn-lg.btn.btn-default(v-for="(templates, group) in templatesByGroup", @click="onTemplateGroupSelect(group)") {{group}}
 							.panel-body(v-if="selectedTab!==-1")
-								i.icon.save(ng-click="download($index)")
+								i.icon.save(@click="downloadTemplate()")
 								div(v-if="selectedGroup==='spring'")
-									Controller(v-show="selectedTab===0", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
-									Repository(v-show="selectedTab===1", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
+									Controller.template(v-show="selectedTab===0", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
+									Repository.template(v-show="selectedTab===1", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
+									Entity.template(v-show="selectedTab===2", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 </template>
 
 <script>
 import Controller from './spring/Controller.vue'
 import Repository from './spring/Repository.vue'
+import Entity from './spring/Entity.vue'
+import Base64 from './js/Base64.js'
 
 const templateByName = {
 	'Controller': Controller,
@@ -65,7 +68,7 @@ const templateByName = {
 
 const templatesByGroup = {
 	'reset': [],
-	'spring': ['Controller', 'Repository']
+	'spring': ['Controller', 'Repository', 'Entity']
 }
 
 let $set = () => {}
@@ -99,7 +102,8 @@ export default {
 
 	components: {
 		Controller,
-		Repository
+		Repository,
+		Entity
 	},
 
 	created () {
@@ -163,8 +167,8 @@ export default {
 		},
 
 		onTemplateGroupSelect (groupName) {
-			$set('fieldDef', fieldDef)
-			$set('objectDef', objectDef)
+			// $set('fieldDef', fieldDef)
+			// $set('objectDef', objectDef)
 			$set('selectedGroup', groupName)
 			this.objects = []
 			$set('objects', this.objects)
@@ -179,6 +183,22 @@ export default {
 		deleteField (oIndex, index) {
 			this.objects[oIndex].fields.splice(index, 1)
 			$set('objects', this.objects)
+		},
+
+		downloadTemplate() {
+			let i = 0;
+
+			if ($('.template[style!="display: none;"] > pre').length > 0) {
+				Base64.downloadText($($('.template[style!="display: none;"] > pre').get(0)).text())
+				//TODO: Multiple downloads?
+				window.onload = ()=>{
+					i++;
+					Base64.downloadText($($('.template[style!="display: none;"] > pre').get(i)).text())
+				}
+			} else {
+				Base64.downloadText($($('.template[style!="display: none;"]').get(0)).text())
+			}
+
 		}
 
 	}
@@ -209,6 +229,7 @@ i.icon.save
 	right: 50px;
 	font-size: 50px;
 	margin-left: 100%;
+	cursor: pointer;
 i.icon.save:after
 	content: 'download';
 
