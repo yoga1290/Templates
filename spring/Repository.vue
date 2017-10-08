@@ -44,16 +44,16 @@ import Template from 'Template'
 var fieldDef = {
 	type: {
 		default: 'String',
-		select: [ 'long',
+		select: [ 'Long',
 							'String',
-							'datetime',
-							'TINYINT(1)'
+							'Date',
+							'Boolean'
 		],
 		string: true
 	},
 
 	isPK: {
-		default: 'String',
+		default: false,
 		checkbox: true
 	}
 
