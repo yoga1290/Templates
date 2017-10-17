@@ -25,7 +25,7 @@ html
 											span.caret
 										ul.dropdown-menu
 											li(v-for="(fValue, fKey) in fieldDef")
-												a(:class="{selected: field[fKey]===option}", v-for="option in fValue.select", @click="field[fKey]=option;") {{fKey + ': ' + option}}
+												a(:class="{selected: field[fKey]===option}", v-if="fValue.select", v-for="option in fValue.select", @click="field[fKey]=option;") {{fKey + ': ' + option}}
 												a.string(v-if="fValue.string")
 													input.form-control(type="text",v-model="field[fKey]", placeholder="fKey")
 												a(v-if="fValue.checkbox")
@@ -73,10 +73,10 @@ const templatesByGroup = {
 
 let $set = () => {}
 
-var fieldDef = {
+let fieldDef = {
 }
 
-var objectDef = {
+let objectDef = {
 	name: '',
 	fields: []
 }

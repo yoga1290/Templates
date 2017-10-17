@@ -26,10 +26,11 @@ import Template from 'Template' //webpack alias
 var fieldDef = {
 	type: {
 		default: 'String',
-		select: [ 'long',
-							'String',
-							'datetime',
-							'TINYINT(1)'
+		select: [
+           'long',
+           'String',
+           'datetime',
+           'TINYINT(1)'
 		]
 	},
 
@@ -47,3 +48,11 @@ var fieldDef = {
 export default Template(fieldDef, {})
 </script>
 ```
+
+# Install & build
+
+### via Node/NPM:
+(must be in the repo directory to run, obviously)
++ install: `npm i`
++ watch: `npm run watch`
++ build: `npm run build`
