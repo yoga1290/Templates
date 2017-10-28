@@ -53,11 +53,13 @@ html
 									Controller.template(v-show="selectedTab===0", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 									Repository.template(v-show="selectedTab===1", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 									Entity.template(v-show="selectedTab===2", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
+									LoggerConfiguration.template(v-show="selectedTab===3", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 </template>
 
 <script>
 import Controller from './spring/Controller.vue'
 import Repository from './spring/Repository.vue'
+import LoggerConfiguration from './spring/LoggerConfiguration.vue'
 import Entity from './spring/Entity.vue'
 import Base64 from './js/Base64.js'
 
@@ -68,7 +70,7 @@ const templateByName = {
 
 const templatesByGroup = {
 	'reset': [],
-	'spring': ['Controller', 'Repository', 'Entity']
+	'spring': ['Controller', 'Repository', 'Entity', 'LoggerConfiguration']
 }
 
 let $set = () => {}
@@ -103,7 +105,8 @@ export default {
 	components: {
 		Controller,
 		Repository,
-		Entity
+		Entity,
+		LoggerConfiguration
 	},
 
 	created () {
