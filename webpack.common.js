@@ -35,7 +35,8 @@ var config = {
       'bootstrap.min.css.map': path.join(BootstrapPath, 'bootstrap.min.css.map'),
       'animate.css' : path.join(__dirname, 'node_modules', 'animate.css', 'animate.min.css'),
 
-      'Template': path.join(__dirname, 'Template.js')
+      'Template': path.join(__dirname, 'Template.js'),
+      'TemplatesContainer': path.join(__dirname, 'TemplatesContainer.js')
       // 'configuration': path.join()
     }
   },
@@ -48,7 +49,7 @@ var config = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['es2015', 'env']
+            presets: ['babel-preset-env']
           }
         }
       },

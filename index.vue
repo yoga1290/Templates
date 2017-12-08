@@ -49,28 +49,19 @@ html
 								button.btn-lg.btn.btn-default(v-for="(templates, group) in templatesByGroup", @click="onTemplateGroupSelect(group)") {{group}}
 							.panel-body(v-if="selectedTab!==-1")
 								i.icon.save(@click="downloadTemplate()")
-								div(v-if="selectedGroup==='spring'")
-									Controller.template(v-show="selectedTab===0", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
-									Repository.template(v-show="selectedTab===1", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
-									Entity.template(v-show="selectedTab===2", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
-									LoggerConfiguration.template(v-show="selectedTab===3", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
+								SpringTemplates(v-if="selectedGroup==='spring'", :selectedTab="selectedTab", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 </template>
 
 <script>
-import Controller from './spring/Controller.vue'
-import Repository from './spring/Repository.vue'
-import LoggerConfiguration from './spring/LoggerConfiguration.vue'
+import SpringTemplates from './spring/index.vue'
 import Entity from './spring/Entity.vue'
 import Base64 from './js/Base64.js'
 
-const templateByName = {
-	'Controller': Controller,
-	'Repository': Repository
-}
 
 const templatesByGroup = {
 	'reset': [],
-	'spring': ['Controller', 'Repository', 'Entity', 'LoggerConfiguration']
+	'spring': ['Controller', 'Repository', 'Entity', 'LoggerConfiguration'],
+	'express': ['Server', 'Route', 'Service', 'Repository']
 }
 
 let $set = () => {}
@@ -103,10 +94,8 @@ export default {
 	},
 
 	components: {
-		Controller,
-		Repository,
-		Entity,
-		LoggerConfiguration
+		SpringTemplates,
+		ExpressTemplates
 	},
 
 	created () {
