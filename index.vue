@@ -50,10 +50,12 @@ html
 							.panel-body(v-if="selectedTab!==-1")
 								i.icon.save(@click="downloadTemplate()")
 								SpringTemplates(v-if="selectedGroup==='spring'", :selectedTab="selectedTab", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
+								SailsTemplates(v-if="selectedGroup==='sailsjs'", :selectedTab="selectedTab", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 </template>
 
 <script>
 import SpringTemplates from './spring/index.vue'
+import SailsTemplates from './sailsjs/index.vue'
 import Entity from './spring/Entity.vue'
 import Base64 from './js/Base64.js'
 
@@ -61,6 +63,7 @@ import Base64 from './js/Base64.js'
 const templatesByGroup = {
 	'reset': [],
 	'spring': ['Controller', 'Repository', 'Entity', 'LoggerConfiguration'],
+	'sailsjs': ['Model'],
 	'express': ['Server', 'Route', 'Service', 'Repository']
 }
 
@@ -95,7 +98,8 @@ export default {
 
 	components: {
 		SpringTemplates,
-		ExpressTemplates
+		SailsTemplates
+		// ExpressTemplates
 	},
 
 	created () {
