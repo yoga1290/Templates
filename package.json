@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
-    "watch": "webpack --config webpack.dev.js --watch",
+    "start": "webpack --config webpack.dev.js -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yoga1290",

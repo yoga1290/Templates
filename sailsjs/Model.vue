@@ -10,11 +10,11 @@ pre
 
 
 		module.exports = {
-		  tableName: "{{object.name ? object.name.toLowerCase():'myTable'}}",
+		  tableName: "{{camelCaseTo_(object.name)}}",
 		  attributes: {
 	div(v-for="field in object.fields")
 		|  {{field.name}} : {
-		|      type: '{{field.type}}'
+		|      type: '{{field.type}}',
 		div(v-if="field.primaryKey")
 			|      primaryKey: true,
 		div(v-if="field.unique")
@@ -23,9 +23,15 @@ pre
 			|      autoIncrement: true,
 		div(v-if="field.size")
 			|      size: {{field.size}},
-		| },
+		|    },
 	div.
 		  },
+			/*
+			otherModel : {
+			  columnName: "other_id",
+			  model: "other_model"
+			},
+			//*/
 
 		// https://sailsjs.com/documentation/concepts/models-and-orm/models#custom-model-methods
 		/*

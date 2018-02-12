@@ -63,7 +63,7 @@ import Base64 from './js/Base64.js'
 const templatesByGroup = {
 	'reset': [],
 	'spring': ['Controller', 'Repository', 'Entity', 'LoggerConfiguration'],
-	'sailsjs': ['Model'],
+	'sailsjs': ['Model', 'Controller', 'Service', 'SQL'],
 	'express': ['Server', 'Route', 'Service', 'Repository']
 }
 

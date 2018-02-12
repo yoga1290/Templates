@@ -12,7 +12,11 @@ export default (fieldDef, objectDef) => {
 
   		lower (string) {
   			return (string!==undefined) ? string.toLowerCase():'';
-  		}
+  		},
+
+      camelCaseTo_ (string) {
+        return string.replace(/([A-Z])/g, '_$1').toLowerCase()
+      }
   	},
 
   	created () {

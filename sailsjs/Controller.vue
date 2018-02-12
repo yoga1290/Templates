@@ -5,31 +5,49 @@ pre
 		import express = require('express');
 
 		declare var sails: any;
+		declare var {{object.name.split('').map((c,i)=>{return i==0?c.toUpperCase():c}).join('') }}Service : any;
 
-		export function index(req:any, res:any, next: Function):any {
-		console.log('index() from TsController.ts');
-			res.status(200).send('Hello from Typescript!');
-		}
 
 		/**
 		* get{{object.name.split('').map((c,i)=>{return i==0?c.toUpperCase():c}).join('') }}
-		* @param {express.Request} req - The string containing two comma-separated numbers.
-		* @param {express.Response} res - The string containing two comma-separated numbers.
-		* @return {Point} A Point object.
+		* @param {express.Request} req - express.Request
+		* @param {express.Response} res - express.Response
+		* @return {None} nada
 		*/
 		export function get{{object.name.split('').map((c,i)=>{return i==0?c.toUpperCase():c}).join('') }}(req:any, res:any, next: Function):any {
 			console.log('get() from TsController.ts');
 			res.status(200).send('Hello from Typescript!');
 		}
 
-		export function config(req: express.Request, res: express.Response, next: Function) {
-			console.log('config() from TsController.ts');
-			res.status(200)
-				 .send('<h1>sails.config :</h1><pre>' + util.inspect(sails.config) + '<pre>');
-		}
+		/**
+		* post{{object.name.split('').map((c,i)=>{return i==0?c.toUpperCase():c}).join('') }}
+		* @param {express.Request} req - express.Request
+		* @param {express.Response} res - express.Response
+		* @return {JSON} {{object.name}} data
+		*/
+		export function post{{object.name.split('').map((c,i)=>{return i==0?c.toUpperCase():c}).join('') }}(req:any, res:any, next: Function):any {
+			{{object.name.split('').map((c,i)=>{return i==0?c.toUpperCase():c}).join('') }}Service.insert({
+	div(v-for="field in object.fields")
+		| {{field.name}}: req.body.{{field.name}},
+	div
+		|			}, (e, r) => {
+		|			})
+		|}
 
-
-
+		/**
+		* put{{object.name.split('').map((c,i)=>{return i==0?c.toUpperCase():c}).join('') }}
+		* @param {express.Request} req - express.Request
+		* @param {express.Response} res - express.Response
+		* @return {JSON} {{object.name}} data
+		*/
+		export function put{{object.name.split('').map((c,i)=>{return i==0?c.toUpperCase():c}).join('') }}(req:any, res:any, next: Function):any {
+			{{object.name.split('').map((c,i)=>{return i==0?c.toUpperCase():c}).join('') }}Service.update({
+	div(v-for="field in object.fields")
+		| {{field.name}}: req.body.{{field.name}},
+	div
+		|			}, (e, r) => {
+		|			})
+		|}
 </template>
 
 <script>
