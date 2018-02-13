@@ -49,7 +49,7 @@ var config = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['babel-preset-env']
+            presets: ['env']
           }
         }
       },
@@ -72,7 +72,7 @@ var config = {
         use: {
           loader: 'vue-loader',
           options: {
-            presets: ['es2015', 'env']
+            presets: ['env']
           }
         }
       }
