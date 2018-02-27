@@ -34,7 +34,7 @@ html
 												.divider
 											li
 												a(@click="deleteField(oIndex, $index)") DELETE
-									input.field.form-control(type="text", placeholder="Field name", v-model="field.name", @keydown.enter="newField(oIndex)")
+									input.field.form-control(type="text", placeholder="Field name", v-model="field.name", @keyup="updateObject(obj, oIndex)", @keydown.enter="newField(oIndex)")
 					.col-md-8.col-xs-12(v-for="object in objects")
 						ul.nav.nav-tabs(role="tablist")
 							li(:class="{active:selectedTab===-1}")
@@ -125,6 +125,10 @@ export default {
 
 	methods: {
 
+		updateObject (object, index) {
+			this.objects[index] = Object.assign({}, object)
+			$set('objects', this.objects)
+		},
 		loadTemplateByName(name) {
 			return templateByName[name]
 		},
@@ -157,6 +161,7 @@ export default {
 			this.objects[objIndex].fields.push(nField)
 			console.log(this.objects[objIndex].fields, objIndex)
 
+			this.objects = Object.assign({}, this.objects)
 			$set('objects', this.objects)
 
 			setTimeout(function(){
