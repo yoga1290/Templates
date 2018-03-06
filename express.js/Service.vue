@@ -57,5 +57,6 @@ pre
 </template>
 <script>
 import Template from 'Template'
-export default Template({}, {})
+import {fieldDef, objectDef} from './config.json'
+export default Template(fieldDef, objectDef)
 </script>

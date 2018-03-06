@@ -3,7 +3,7 @@ pre
   div.
     const DatabaseHelper = require('./DatabaseHelper.js')
     const logger = require('../logger')
-    let log = logger('{{Capitalise(field.name)}}Repository')
+    let log = logger('{{Capitalise(object.name)}}Repository')
 
     module.exports = {
 
@@ -22,5 +22,6 @@ pre
 </template>
 <script>
 import Template from 'Template'
-export default Template({}, {})
+import {fieldDef, objectDef} from './config.json'
+export default Template(fieldDef, objectDef)
 </script>

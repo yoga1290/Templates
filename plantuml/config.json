@@ -1,0 +1,35 @@
+{
+  "fieldDef": {
+    "visibility": {
+      "default": "private",
+      "select": [
+        "private",
+        "protected",
+        "package private",
+        "public"
+      ],
+  		"string": true
+    },
+
+  	"type": {
+  		"default": "",
+  		"select": [],
+  		"string": true
+  	},
+
+    "isStatic": {
+  		"default": false,
+  		"checkbox": true
+  	},
+
+    "isAbstract": {
+  		"default": false,
+  		"checkbox": true
+  	}
+  },
+
+  "objectDef": {
+  	"name": "",
+  	"fields": []
+  }
+}

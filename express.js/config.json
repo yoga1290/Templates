@@ -1,0 +1,19 @@
+{
+  "fieldDef": {
+  	"type": {
+  		"default": "",
+  		"select": [],
+  		"string": true
+  	},
+
+  	"isPK": {
+  		"default": false,
+  		"checkbox": true
+  	}
+  },
+
+  "objectDef": {
+  	"name": "",
+  	"fields": []
+  }
+}
