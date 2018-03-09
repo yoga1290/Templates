@@ -1,0 +1,100 @@
+{
+  "fieldDef": {
+
+    "required": {
+      "default": true,
+      "checkbox": true
+    },
+
+    "type.string": {
+      "default": true,
+      "checkbox": true
+    },
+    "type.number": {
+      "default": false,
+      "checkbox": true
+    },
+    "type.integer": {
+      "default": false,
+      "checkbox": true
+    },
+    "type.object": {
+      "default": false,
+      "checkbox": true
+    },
+    "type.array": {
+      "default": false,
+      "checkbox": true
+    },
+    "type.boolean": {
+      "default": false,
+      "checkbox": true
+    },
+    "type.null": {
+      "default": false,
+      "checkbox": true
+    },
+
+    "string.minLength": {
+      "default": "",
+      "string": true
+    },
+    "string.maxLength": {
+      "default": "",
+      "string": true
+    },
+    "string.pattern": {
+      "default": "",
+      "string": true
+    },
+
+    "format": {
+      "default": false,
+      "select": [
+        "date-time",
+        "email",
+        "hostname",
+        "ipv4",
+        "ipv6",
+        "uri"
+      ],
+  		"string": false,
+      "checkbox": false
+    },
+
+    "number.multipleOf": {
+  		"string": true
+  	},
+    "number.minimum": {
+  		"string": true,
+      "checkbox": false
+  	},
+    "number.maximum": {
+  		"string": true,
+      "checkbox": false
+  	},
+
+    "array.minItems": {
+      "default": "",
+      "string": true
+    },
+    "array.maxItems": {
+      "default": "",
+      "string": true
+    },
+    "array.uniqueItems": {
+      "default": true,
+      "checkbox": true
+    }
+
+    
+  },
+
+  "objectDef": {
+  	"name": "",
+  	"fields": [],
+    "additionalProperties": {
+      "checkbox": true
+    }
+  }
+}

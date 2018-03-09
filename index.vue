@@ -16,7 +16,7 @@ html
 						.panel.panel-default
 							.panel-heading
 								.row
-									input.form-control(type="text", v-model="obj.name", placeholder="Object Class name", @keydown.enter="newField(oIndex)")
+									input.object-name.form-control(type="text", v-model="obj.name", placeholder="Object Class name", @keydown.enter="newField(oIndex)")
 							.panel-body
 								.input-group.col-xs-12(v-for="(field, $index) in obj.fields")
 									.input-group-btn(:class="{open: (open===$index)}")
@@ -27,7 +27,7 @@ html
 											li(v-for="(fValue, fKey) in fieldDef")
 												a(:class="{selected: field[fKey]===option}", v-if="fValue.select", v-for="option in fValue.select", @click="field[fKey]=option;") {{fKey + ': ' + option}}
 												a.string(v-if="fValue.string")
-													input.form-control(type="text",v-model="field[fKey]", placeholder="fKey")
+													input.form-control(type="text",v-model="field[fKey]", :placeholder="fKey")
 												a(v-if="fValue.checkbox")
 													input(type="checkbox", v-model="field[fKey]")
 													| {{fKey}}
@@ -48,11 +48,12 @@ html
 							.panel-body(v-if="selectedTab===-1")
 								button.btn-lg.btn.btn-default(v-for="(templates, group) in templatesByGroup", @click="onTemplateGroupSelect(group)") {{group}}
 							.panel-body(v-if="selectedTab!==-1")
-								i.icon.save(@click="downloadTemplate()")
+								i.icon.save(@click="downloadTemplate()", style="display:none;")
 								SpringTemplates(v-if="selectedGroup==='spring'", :selectedTab="selectedTab", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 								SailsTemplates(v-if="selectedGroup==='sailsjs'", :selectedTab="selectedTab", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 								ExpressTemplates(v-if="selectedGroup==='express'", :selectedTab="selectedTab", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 								PlanetUML(v-if="selectedGroup==='plantuml'", :selectedTab="selectedTab", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
+								JSONSchema(v-if="selectedGroup==='json-schema'", :selectedTab="selectedTab", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
 </template>
 
 <script>
@@ -60,6 +61,7 @@ import SpringTemplates from './spring/index.vue'
 import SailsTemplates from './sailsjs/index.vue'
 import ExpressTemplates from './express.js/index.vue'
 import PlanetUML from './plantuml/index.vue'
+import JSONSchema from './json-schema/index.vue'
 import Base64 from './js/Base64.js'
 
 
@@ -68,7 +70,8 @@ const templatesByGroup = {
 	'spring': ['Controller', 'Repository', 'Entity', 'LoggerConfiguration'],
 	'sailsjs': ['Model', 'Controller', 'Service', 'SQL'],
 	'express': ['Server', 'Route', 'Service', 'Repository', 'Test'],
-	'plantuml': ['ClassDiagram']
+	'plantuml': ['ClassDiagram'],
+	'json-schema': ['Notes', 'Schema']
 }
 
 let $set = () => {}
@@ -104,7 +107,8 @@ export default {
 		SpringTemplates,
 		SailsTemplates,
 		ExpressTemplates,
-		PlanetUML
+		PlanetUML,
+		JSONSchema
 	},
 
 	created () {
@@ -253,6 +257,13 @@ i.icon.new-field
 	font-size: 20px;
 i.icon.new-field:after
 	content: 'folder-add';
+
+.nav-tabs>li
+	float: left;
+	margin-bottom: -2px;
+.object-name
+	font-size: 52px;
+	height: 72px;
 </style>
 
 <style lang="stylus">
