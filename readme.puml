@@ -1,0 +1,12 @@
+@startuml
+(*) --> "ObjectDef = {}"
+
+If <Template group is selected> then
+--> [Yes] "merge(ObjectDef, Template1ObjectDef)"
+--> "merge(ObjectDef, Template2ObjectDef)"
+--> "render"
+else
+--> "render"
+Endif
+-->(*)
+@enduml
