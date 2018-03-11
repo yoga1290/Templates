@@ -42,11 +42,11 @@ html
 									h4
 										i.icon.home
 							li(v-for="(template, $i) in templatesByGroup[selectedGroup]", :class="{active:selectedTab===$i}")
-								a(@click="selectedTab = $i")
+								a(@click="selectedTab = $i", :ga="selectedGroup + ' - ' + templatesByGroup[selectedGroup][$i]")
 									h4 {{template}}
 						.panel.panel-default.templates
 							.panel-body(v-if="selectedTab===-1")
-								button.btn-lg.btn.btn-default(v-for="(templates, group) in templatesByGroup", @click="onTemplateGroupSelect(group)") {{group}}
+								button.btn-lg.btn.btn-default(v-for="(templates, group) in templatesByGroup", @click="onTemplateGroupSelect(group)", :ga="group") {{group}}
 							.panel-body(v-if="selectedTab!==-1")
 								i.icon.save(@click="downloadTemplate()", style="display:none;")
 								SpringTemplates(v-if="selectedGroup==='spring'", :selectedTab="selectedTab", :object="obj", :registerNewFieldDef="onFieldDefUpdate", :registerNewObjectDef="onObjectDefUpdate")
@@ -57,16 +57,17 @@ html
 </template>
 
 <script>
+import 'gAnalytics' //env alias
 import SpringTemplates from './spring/index.vue'
 import SailsTemplates from './sailsjs/index.vue'
 import ExpressTemplates from './express.js/index.vue'
 import PlanetUML from './plantuml/index.vue'
 import JSONSchema from './json-schema/index.vue'
-import Base64 from './js/Base64.js'
+//import Base64 from './js/Base64.js'
 
 
 const templatesByGroup = {
-	'reset': [],
+	// 'reset': [],
 	'spring': ['Controller', 'Repository', 'Entity', 'LoggerConfiguration'],
 	'sailsjs': ['Model', 'Controller', 'Service', 'SQL'],
 	'express': ['Server', 'Route', 'Service', 'Repository', 'Test'],

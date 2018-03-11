@@ -35,7 +35,7 @@ var config = {
 
   resolve: {
     alias: {
-      'configuration': path.join(__dirname, 'config', 'prod.js')
+      'gAnalytics': path.join(__dirname, 'ga.js')
     }
   },
 

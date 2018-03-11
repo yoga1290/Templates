@@ -36,7 +36,8 @@ var config = {
       'animate.css' : path.join(__dirname, 'node_modules', 'animate.css', 'animate.min.css'),
 
       'Template': path.join(__dirname, 'Template.js'),
-      'TemplatesContainer': path.join(__dirname, 'TemplatesContainer.js')
+      'TemplatesContainer': path.join(__dirname, 'TemplatesContainer.js'),
+      'gAnalytics': path.join(__dirname, 'nothing.js')
       // 'configuration': path.join()
     }
   },
