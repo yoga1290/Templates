@@ -71,7 +71,7 @@ const templatesByGroup = {
 	'spring': ['Controller', 'Repository', 'Entity', 'LoggerConfiguration'],
 	'sailsjs': ['Model', 'Controller', 'Service', 'SQL'],
 	'express': ['Server', 'Route', 'Service', 'Repository', 'Test'],
-	'plantuml': ['ClassDiagram'],
+	'plantuml': ['Notes', 'ClassDiagram'],
 	'json-schema': ['Notes', 'Schema']
 }
 
