@@ -1,0 +1,35 @@
+{
+  "appId": "yoga1290",
+  "files": ["index.html", "bootstrap.min.css", "app.js", "*.woff", "*.svg", "*.ttf", "*.eot"],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      }, {
+        "target": "nsis-web",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      }]
+  },
+
+  "nsisWeb": {
+    "oneClick": true,
+    "allowElevation": true,
+    "createDesktopShortcut": true
+  },
+
+  "nsis": {
+    "oneClick": true,
+    "allowElevation": true,
+    "createDesktopShortcut": true
+  },
+
+  "asarUnpack": true,
+  "publish": null
+}
